@@ -1,0 +1,57 @@
+#body404NotFound {
+    font-family: 'Arial', sans-serif;
+    background-color: #121212;
+    color: #fff;
+    height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    text-align: center;
+    padding: 20px;
+}
+
+.h1404 {
+    font-size: 10rem;
+    font-weight: bold;
+    color: #ff3d00;
+    margin-bottom: 20px;
+}
+
+.p404 {
+    font-size: 1.5rem;
+    color: #bbb;
+    margin-bottom: 30px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 15px 30px;
+    border-radius: 30px;
+    background-color: #ff3d00;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.back-button:hover {
+    background-color: #e63e00;
+}
+
+@media (max-width: 768px) {
+    .h1404 {
+        font-size: 6rem;
+    }
+
+    .p404 {
+        font-size: 1.2rem;
+    }
+
+    .back-button {
+        padding: 12px 25px;
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,48 @@
+.imgLogo{
+    width: 2.5rem;
+    margin-right: .5rem;
+}
+
+.spanNavBar{
+    font-weight: bolder;
+    font-family: cursive;
+}
+
+.navbar-collapse{
+    display: flex;
+    justify-content: flex-end;
+}
+
+.containerBtnsNav{
+    display: flex;
+    width: 28%;
+    justify-content: space-around;
+}
+
+svg{
+    font-size: 1.5rem;
+    color: rgb(0, 153, 255);
+    cursor: pointer;
+    transition: all .3s;
+}
+
+svg:hover{
+    color: black;
+}
+
+@media screen and (max-width: 991px) {
+    .containerBtnsNav{
+        width: 100%;
+        justify-content: center;
+        flex-direction: column;
+
+        button{
+            width: 10rem;
+            margin: .5rem;
+        }
+
+        svg{
+            margin: 1rem auto;
+        }
+    }
+}

@@ -51,7 +51,26 @@ class UserManager {
             names: body.names || user.names,
             surnames: body.surnames || user.surnames ,
             phone: body.phone || user.phone,
-            email: body.email || user.email 
+            email: body.email || user.email
+        }
+
+        return this.model.update(update, {
+            where: {
+                id: uid
+            }
+        },
+        );
+    }
+
+    async updateUserPassword(uid, body) {
+        const user = await this.getUserById(uid)
+
+        if (!user) {
+            throw new Error("El usuario no existe")
+        }
+
+        const update = {
+            password: body.password || user.password
         }
 
         return this.model.update(update, {

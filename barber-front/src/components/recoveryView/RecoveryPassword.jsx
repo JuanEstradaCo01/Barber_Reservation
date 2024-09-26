@@ -1,13 +1,16 @@
 import "./recoveryView.css"
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"
+import React, { useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import Swal from "sweetalert2"
 import withReactComponent from "sweetalert2-react-content"
-import MiniLoader from "../miniLoader/MiniLoader";
+import MiniLoader from "../miniLoader/MiniLoader"
 
-function RecoveryView() {
+function RecoveryPassword() {
 
-    const [email, setEmail] = useState("")
+    const { uid } = useParams()
+
+    const [newPass, setNewPass] = useState("")
+    const [confirmNewPass, setConfirmNewPass] = useState("")
     const [miniLoader, setMiniLoader] = useState(false)
 
     const navigate = useNavigate();
@@ -23,19 +26,22 @@ function RecoveryView() {
         })
     }
 
-    const sendRecovery = async (evt) => {
+    const recoverPass = async (evt) => {
         evt.preventDefault()
 
-        document.getElementById("formRecovery").reset()
+        document.getElementById("formRecoveryPassword").reset()
 
         setMiniLoader(true)
 
-        await fetch(`${process.env.REACT_APP_URL_BACK}/restablecimientodecontrasena`, {
-            method: "POST",
+        await fetch(`${process.env.REACT_APP_URL_BACK}/restablecer/${uid}`, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({email: email})
+            body: JSON.stringify({
+                newPass: newPass,
+                confirmNewPass: confirmNewPass
+            })
         })
             .then(res => res.json())
             .then(data => {
@@ -60,19 +66,21 @@ function RecoveryView() {
     return (
         <body id="body-recovery">
             <div id="container">
-                <h1>Recuperar contraseña</h1>
+                <h1>Restablecer contraseña</h1>
 
                 <hr />
                 <br />
 
-                <form id="formRecovery">
-                    <input onChange={(e) => { setEmail(e.target.value) }}  className="inputRecovery" type="text" placeholder="Ingresa tu correo electrónico" />
+                <form id="formRecoveryPassword">
+                    <input onChange={(e) => { setNewPass(e.target.value) }} className="inputRecovery" type="password" placeholder="Nueva contraseña" />
 
-                    {miniLoader === true ? <button className="btnEnviarRecovery" type="submit"><MiniLoader /></button> : <button onClick={sendRecovery} className="btnEnviarRecovery" type="submit">Enviar</button>}
+                    <input onChange={(e) => { setConfirmNewPass(e.target.value) }} className="inputRecovery" type="password" placeholder="Confirmar contraseña" />
+                    
+                    {miniLoader === true ? <button className="btnEnviarRecovery" type="submit"><MiniLoader /></button> : <button onClick={recoverPass} className="btnEnviarRecovery" type="submit">Enviar</button>}
                 </form>
             </div>
         </body>
     )
 }
 
-export default RecoveryView;
+export default RecoveryPassword;

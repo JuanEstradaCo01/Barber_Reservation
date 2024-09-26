@@ -63,14 +63,8 @@ class UserManager {
     }
 
     async updateUserPassword(uid, body) {
-        const user = await this.getUserById(uid)
-
-        if (!user) {
-            throw new Error("El usuario no existe")
-        }
-
         const update = {
-            password: body.password || user.password
+            password: body.password
         }
 
         return this.model.update(update, {

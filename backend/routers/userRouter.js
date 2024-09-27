@@ -364,7 +364,10 @@ userRouter.get("/bookings/:adminId", authAdmin, async (req, res) => {
     try {
         const bookings = await userManager.adminGetBookings()
 
-        return res.status(200).json(bookings)
+        return res.status(200).json({
+            code: 200,
+            body: bookings
+        })
     } catch (e) {
         return res.status(500).json({
             code: 500,
@@ -377,6 +380,15 @@ userRouter.get("/bookings/:adminId", authAdmin, async (req, res) => {
 userRouter.post("/createBooking/:uid", async (req, res) => {
     try {
         const uid = req.params.uid
+        const user = await userManager.getUserById(uid)
+
+        if(!user) {
+            return res.status(404).json({
+                code: 404,
+                message: "Usuario no encontrado"
+            })
+        }
+
         const { date, time, typeTime } = req.body
 
         const newBooking = {

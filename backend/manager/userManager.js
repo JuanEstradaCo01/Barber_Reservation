@@ -32,8 +32,8 @@ class UserManager {
 
     async createUser(body) {
         return this.model.create({
-            names: body.names,
-            surnames: body.surnames,
+            names: body.names.toUpperCase(),
+            surnames: body.surnames.toUpperCase(),
             phone: body.phone,
             email: body.email,
             password: body.password

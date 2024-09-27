@@ -19,8 +19,16 @@ class BookingManager {
         return this.model.create({
             date: body.date,
             time: body.time,
-            typeTime: body.typeTime,
+            typeTime: body.typeTime.toUpperCase(),
             uid: body.uid
+        })
+    }
+
+    async deleteBooking(id) {
+        return this.model.destroy({
+            where: {
+                id: id,
+            },
         })
     }
 }

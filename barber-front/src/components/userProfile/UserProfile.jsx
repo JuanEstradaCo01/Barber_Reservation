@@ -6,6 +6,7 @@ import Swal from "sweetalert2"
 import withReactComponent from "sweetalert2-react-content"
 import Loader from "../loader/Loader";
 import AdminView from "../adminView/AdminView";
+import Button from 'react-bootstrap/Button';
 
 function UserProfile() {
 
@@ -50,19 +51,28 @@ function UserProfile() {
         return <Loader />
     }
 
-    if(user.role === "Admin") {
-        return <AdminView />
+    if (user.role === "Admin") {
+        return <AdminView admin={user} />
     }
 
     return (
-        <div className="containerProfile">
+        <body id="containerProfile">
+            <div className="divBtnSalir"><Link to={"/"}><Button onClick={logOut} variant="outline-danger">Cerrar sesion</Button>{' '}</Link></div>
+
             <h2>¡Hola, {user.names}!</h2>
 
-            <Link to={"/"}><button onClick={logOut}>Cerrar sesion</button></Link>
-            <button>Reservar turno</button>
+            <div className="btnReservarContenedor">
+                <Button variant="primary">Reservar turno</Button>{' '}
+            </div>
+
+            <br />
+            <br />
+            <hr />
 
             <h2>Proximo turno:</h2>
-        </div>
+
+            <h3>¡No tienes turno reservado!</h3>
+        </body>
     )
 }
 

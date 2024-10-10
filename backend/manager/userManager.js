@@ -14,6 +14,15 @@ class UserManager {
         })
     }
 
+    async userGetBookingById(id) {
+        return this.model.findOne({
+            where: { id: id },
+            include: [{
+                model: BookingModel
+            }]
+        })
+    }
+
     async getUsers() {
         return this.model.findAll()
     }

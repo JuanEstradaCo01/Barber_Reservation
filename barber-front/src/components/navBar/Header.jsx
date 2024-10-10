@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import React, { useContext } from 'react';
 import { userContext } from '../context/Context';
-import { FaUser } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
 
 function Header() {
 
@@ -23,10 +23,11 @@ function Header() {
                     {userId === "" ? <div className="containerBtnsNav">
                         <Link to={"/"}><Button variant="outline-dark">Iniciar sesion</Button></Link>
                         <Link to={"/registro"}><Button variant="primary">Regístrate</Button>{' '}</Link>
-                    </div> : <div className="containerBtnsNav">
-                        <FaUser />
+                    </div> :
+                    <div className="containerBtnsNav">
+                        <Link to={`/user/${userId}`}><FaUserCircle /></Link>
                     </div>}
-                    
+
                 </Navbar.Collapse>
             </Container>
         </Navbar>

@@ -16,10 +16,37 @@
         font-weight: bolder;
         color: rgb(255, 196, 0);
     }
+    h4{
+        text-align: center;
+        margin: 3rem;
+        font-family: fantasy;
+        font-weight: bolder;
+        color: rgb(1, 105, 1);
+    }
 }
 
 .btnReservarContenedor{
     display: flex;
     justify-content: center;
     margin-top: 3rem;
+}
+
+.contenedorUsuarioReserva{
+    display: flex;
+    justify-content: space-between;
+    max-width: 40rem;
+    margin: auto;
+    button{
+        margin: auto;
+        width: 12rem;
+    }
+}
+
+@media screen and (max-width: 760px) {
+    .contenedorUsuarioReserva{
+        flex-direction: column;
+        button{
+            margin: 1rem auto;
+        }
+    }
 }

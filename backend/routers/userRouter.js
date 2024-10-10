@@ -286,12 +286,12 @@ userRouter.post("/restablecimientodecontrasena", async (req, res) => {
 
 //Restablecer contraseña
 userRouter.put("/restablecer/:uid", async (req, res) => {
-    try{
+    try {
         const uid = req.params.uid
 
         const user = await userManager.getUserById(uid)
 
-        if(!user) {
+        if (!user) {
             return res.status(404).json({
                 code: 404,
                 message: "No se encontró el usuario"
@@ -300,14 +300,14 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
 
         const { newPass, confirmNewPass } = req.body
 
-        if(newPass === "" || confirmNewPass === "") {
+        if (newPass === "" || confirmNewPass === "") {
             return res.status(401).json({
                 code: 401,
                 message: "Completa todos los campos"
             })
         }
 
-        if(newPass !== confirmNewPass) {
+        if (newPass !== confirmNewPass) {
             return res.status(401).json({
                 code: 401,
                 message: "Las contraseñas no son iguales"
@@ -344,14 +344,14 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
         </div>`
         })
 
-        await userManager.updateUserPassword(uid, {password: password})
+        await userManager.updateUserPassword(uid, { password: password })
 
         return res.status(200).json({
             code: 200,
             message: "Se restableció exitosamente la contraseña"
         })
 
-    }catch(e){
+    } catch (e) {
         return res.status(500).json({
             code: 500,
             message: "Error al restablecer la contraseña"
@@ -382,7 +382,7 @@ userRouter.post("/createBooking/:uid", async (req, res) => {
         const uid = req.params.uid
         const user = await userManager.getUserById(uid)
 
-        if(!user) {
+        if (!user) {
             return res.status(404).json({
                 code: 404,
                 message: "Usuario no encontrado"
@@ -390,6 +390,41 @@ userRouter.post("/createBooking/:uid", async (req, res) => {
         }
 
         const { date, time, typeTime } = req.body
+
+        if (date === "" || time === "" || typeTime === "") {
+            return res.status(401).json({
+                code: 401,
+                message: "Llena todos los campos"
+            })
+        }
+
+        //Envio correo:
+        const transport = nodemailer.createTransport({
+            host: process.env.PORT, //(para Gmail)
+            service: "gmail", //(para Gmail)
+            port: 587,
+            auth: {
+                user: process.env.USER_EMAIL,
+                pass: process.env.PASS
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        })
+
+        await transport.sendMail({
+            from: process.env.USER_EMAIL,//Correo del emisor
+            to: `${user.email}`,//Correo del receptor
+            subject: "¡Turno reservado exitosamente!",//Asunto del correo
+            html: `<div>
+            <h3>¡Hola, ${user.names}!</h3>
+            <p>Haz reservado con exito tu turno en Maxi Barber Shop para el ${date} a las ${time} ${typeTime}, para cancelar o reagendar tu turno inicia sesion en nustra plataforma y en tu perfil podras gestionarlo.</p>
+            <p>¡Gracias por elegirnos!</p>
+            <br/>
+            <hr/>
+            <footer><h4>Att: team Maxi</h4></footer>
+        </div>`
+        })
 
         const newBooking = {
             date: date,
@@ -411,5 +446,42 @@ userRouter.post("/createBooking/:uid", async (req, res) => {
         })
     }
 });
+
+//Consultar reserva por UserID
+userRouter.get("/reserva/:uid", jwtVerify , async (req, res) => {
+    try {
+        const uid = req.params.uid
+
+        const reserve = await userManager.userGetBookingById(uid)
+
+        if (!reserve) {
+            return res.status(404).json({
+                code: 404,
+                message: "La reserva no existe"
+            })
+        }
+
+        const body = {
+            id: reserve.id,
+            role: reserve.role,
+            names: reserve.names,
+            surnames: reserve.surnames,
+            phone: reserve.phone,
+            email: reserve.email,
+            Booking: reserve.Booking
+        }
+
+        return res.status(200).json({
+            code: 200,
+            body: body
+        })
+
+    } catch (e) {
+        return res.status(500).json({
+            code: 500,
+            message: "Error al consultar la reserva"
+        })
+    }
+})
 
 export default userRouter;

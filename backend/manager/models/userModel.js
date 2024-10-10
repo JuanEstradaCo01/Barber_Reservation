@@ -27,14 +27,6 @@ const UserModel = sequelize.define('Users', {
     },
     password: {
         type: DataTypes.STRING
-    },
-    lastBooking: {
-        type: DataTypes.STRING,
-        defaultValue: "Sin reserva activa"
-    },
-    timeBooking: {
-        type: DataTypes.STRING,
-        defaultValue: "Sin reserva activa"
     }
 },
 {

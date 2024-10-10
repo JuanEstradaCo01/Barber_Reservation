@@ -13,25 +13,23 @@ function UserProfile() {
     const { uid } = useParams()
     const MySwal = withReactComponent(Swal)
 
-    const { addId, addUser, logOut } = useContext(userContext);
+    const { addId, logOut } = useContext(userContext);
 
     addId(uid)
 
     const [user, setUser] = useState("")
 
-    addUser(user)
-
     const navigate = useNavigate()
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_URL_BACK}/user/${uid}`, {
+        fetch(`${process.env.REACT_APP_URL_BACK}/reserva/${uid}`, {
             credentials: "include"
         })
             .then(res => res.json())
             .then(data => {
-                if (data.code === 200) {
+                if (data.code === 200 || 404) {
                     setUser(data.body)
-                } else if (data.code === 401 || 404 || 500) {
+                } else if (data.code === 401 || 500) {
                     navigate("/")
                     addId("")
                     MySwal.fire({
@@ -61,9 +59,9 @@ function UserProfile() {
 
             <h2>¡Hola, {user.names}!</h2>
 
-            <div className="btnReservarContenedor">
-                <Button variant="primary">Reservar turno</Button>{' '}
-            </div>
+            {user.Booking !== null ? <></> : <div className="btnReservarContenedor">
+                <Link to={"/reservar"}><Button variant="primary">Reservar turno</Button>{' '}</Link>
+            </div>}
 
             <br />
             <br />
@@ -71,7 +69,10 @@ function UserProfile() {
 
             <h2>Proximo turno:</h2>
 
-            <h3>¡No tienes turno reservado!</h3>
+            {user.Booking === null ? <h3>¡No tienes turno reservado!</h3> : <div><h4>Turno reservado para el {user.Booking.date} a las {user.Booking.time} {user.Booking.typeTime}</h4>
+            <div className="contenedorUsuarioReserva">
+            <Button variant="success">Reagendar turno</Button>{' '}
+            <Button variant="danger">Cancelar turno</Button>{' '}</div></div>}
         </body>
     )
 }

@@ -20,7 +20,7 @@ function AdminView(props) {
 
     useEffect(() => {
         //Consulto las reservas
-        fetch(`${process.env.REACT_APP_URL_BACK}/bookings/${uid}`, {
+        fetch(`${process.env.REACT_APP_URL_BACK}/reservas/${uid}`, {
             credentials: "include"
         })
             .then(res => res.json())

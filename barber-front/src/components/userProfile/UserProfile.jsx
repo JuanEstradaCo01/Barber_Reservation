@@ -22,7 +22,7 @@ function UserProfile() {
     const navigate = useNavigate()
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_URL_BACK}/reserva/${uid}`, {
+        fetch(`${process.env.REACT_APP_URL_BACK}/usuario/${uid}`, {
             credentials: "include"
         })
             .then(res => res.json())
@@ -71,7 +71,7 @@ function UserProfile() {
 
             {user.Booking === null ? <h3>¡No tienes turno reservado!</h3> : <div><h4>Turno reservado para el {user.Booking.date} a las {user.Booking.time} {user.Booking.typeTime}</h4>
             <div className="contenedorUsuarioReserva">
-            <Button variant="success">Reagendar turno</Button>{' '}
+            <Link to={"/reagendarturno"}><Button variant="success">Reagendar turno</Button>{' '}</Link>
             <Button variant="danger">Cancelar turno</Button>{' '}</div></div>}
         </body>
     )

@@ -25,7 +25,7 @@ function Header() {
                         <Link to={"/registro"}><Button variant="primary">Regístrate</Button>{' '}</Link>
                     </div> :
                     <div className="containerBtnsNav">
-                        <Link to={`/user/${userId}`}><FaUserCircle /></Link>
+                        <Link to={`/usuario/${userId}`}><FaUserCircle /></Link>
                     </div>}
 
                 </Navbar.Collapse>

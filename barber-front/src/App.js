@@ -19,7 +19,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<MainView />} />
                         <Route path='/registro' element={<RegisterView />} />
-                        <Route path='/user/:uid' element={<UserProfile />} />
+                        <Route path='/usuario/:uid' element={<UserProfile />} />
                         <Route path='/recovery' element={<RecoveryView />} />
                         <Route path='/restablecer/:uid' element={<RecoveryPassword />} />
                         <Route path='/reservar' element={<Reserve />} />

@@ -57,52 +57,65 @@ const authAdmin = async (req, res, next) => {
     return next();
 }
 
-userRouter.get("/users", async (req, res) => {
+const sendMail = async (html, email) => {
+    const transport = nodemailer.createTransport({
+        host: process.env.PORT, //(para Gmail)
+        service: "gmail", //(para Gmail)
+        port: 587,
+        auth: {
+            user: process.env.USER_EMAIL,
+            pass: process.env.PASS
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    })
+
+    await transport.sendMail({
+        from: process.env.USER_EMAIL,//Correo del emisor
+        to: `${email}`,//Correo del receptor
+        subject: "Maxi Barber Shop",//Asunto del correo
+        html: html
+    })
+}
+
+userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
     try {
-        const users = await userManager.getUsers();
-
-        res.status(200).json(users)
-    } catch (e) {
-        return res.status(500).json({
-            code: 500,
-            message: "Error al consultar los usuarios"
-        })
-    }
-})
-
-userRouter.get("/user/:uid", jwtVerify, async (req, res) => {
-    try {
-
         const uid = req.params.uid
-        const user = await userManager.getUserById(uid)
-        if (!user) {
+
+        const reserve = await userManager.userGetBookingById(uid)
+
+        if (!reserve) {
             return res.status(404).json({
                 code: 404,
-                message: "Usuario no encontrado"
+                message: "La reserva no existe"
             })
         }
-        let body = {
-            id: user.id,
-            role: user.role,
-            names: user.names,
-            surnames: user.surnames,
-            phone: user.phone,
-            email: user.email
+
+        const body = {
+            id: reserve.id,
+            role: reserve.role,
+            names: reserve.names,
+            surnames: reserve.surnames,
+            phone: reserve.phone,
+            email: reserve.email,
+            Booking: reserve.Booking
         }
 
         return res.status(200).json({
             code: 200,
             body: body
         })
+
     } catch (e) {
         return res.status(500).json({
             code: 500,
-            message: "Error al consultar el usuario"
+            message: "Error al consultar la reserva"
         })
     }
 })
 
-userRouter.post("/createUser", async (req, res) => {
+userRouter.post("/registro", async (req, res) => {
     try {
         const { names, surnames, phone, email, password } = req.body
 
@@ -111,6 +124,14 @@ userRouter.post("/createUser", async (req, res) => {
             body.message = "Completa todos los campos"
             body.code = 401
             return res.status(401).json(body)
+        }
+
+        const findUserIfExist = await userManager.getUserByEmail(email)
+        if(findUserIfExist) {
+            return res.status(401).json({
+                code: 401,
+                message: "Ya existe un usuario registrado con este correo"
+            })
         }
 
         const newUser = {
@@ -122,31 +143,31 @@ userRouter.post("/createUser", async (req, res) => {
         }
 
         //Envio correo de bienvenida:
-        const transport = nodemailer.createTransport({
-            host: process.env.PORT, //(para Gmail)
-            service: "gmail", //(para Gmail)
-            port: 587,
-            auth: {
-                user: process.env.USER_EMAIL,
-                pass: process.env.PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        })
+        const html = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
 
-        await transport.sendMail({
-            from: process.env.USER_EMAIL,//Correo del emisor
-            to: `${newUser.email}`,//Correo del receptor
-            subject: "Maxi Barber Shop",//Asunto del correo
-            html: `<div>
-            <h1>¡Te damos la bienvenida a Maxi Barber Shop!</h1>
-            <h3>¡Hola, ${newUser.names}!</h3>
-            <p>Nos alegra mucho tenerte con nosotros, ahora podras reservar tu turno por este medio en Maxi Barber Shop, te esperamos pronto.</p>
-            <hr/>
-            <footer><h4>Att: team Maxi</h4></footer>
-            </div>`
-        })
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Te damos la bienvenida a Maxi Barber Shop!</h1>
+            <h3 style="font-size: 22px; margin-bottom: 20px;">¡Hola, ${newUser.names}!</h3>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Nos alegra mucho tenerte con nosotros. Ahora podrás reservar tu turno por este medio en Maxi Barber Shop. Te esperamos pronto.
+            </p>
+            <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 20px;"/>
+            <footer>
+                <h4 style="font-size: 16px; margin-top: 0; color:#0d590d;">Atentamente: team Maxi</h4>
+            </footer>
+        </div>
+
+        </body>
+        </html>`
+
+        sendMail(html, newUser.email)
 
         await userManager.createUser(newUser)
 
@@ -158,65 +179,6 @@ userRouter.post("/createUser", async (req, res) => {
         return res.status(500).json({
             code: 500,
             message: "Error al registrarse"
-        })
-    }
-})
-
-userRouter.put("/updateUser/:uid", async (req, res) => {
-    try {
-        const uid = req.params.uid
-        const user = await userManager.getUserById(uid)
-        if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "Usuario no encontrado"
-            })
-        }
-
-        const { names, surnames, phone, email } = req.body
-
-        const update = {
-            names: names,
-            surnames: surnames,
-            phone: phone,
-            email: email
-        }
-
-        await userManager.updateUser(uid, update)
-
-        return res.status(200).json({
-            code: 200,
-            message: `Usuario modificado ${names}`
-        })
-    } catch (e) {
-        return res.status(500).json({
-            code: 500,
-            message: "Error al editar el usuario"
-        })
-    }
-})
-
-userRouter.delete("/deleteUser/:uid", jwtVerify, async (req, res) => {
-    try {
-        const uid = req.params.uid
-        const user = await userManager.getUserById(uid)
-        if (!user) {
-            return res.status(404).json({
-                code: 404,
-                message: "Usuario no encontrado"
-            })
-        }
-
-        await userManager.deleteUser(uid)
-
-        return res.status(200).json({
-            code: 200,
-            message: `Usuario '${user.names}' eliminado`
-        })
-    } catch (e) {
-        return res.status(500).json({
-            code: 500,
-            message: "Error al eliminar el usuario"
         })
     }
 })
@@ -233,43 +195,43 @@ userRouter.post("/restablecimientodecontrasena", async (req, res) => {
             })
         }
 
-        const users = await userManager.getUsers()
-        const user = users.find(item => item.email === email)
-
+        const user = await userManager.getUserByEmail(email)
         if (!user) {
             return res.status(404).json({
                 code: 404,
-                message: "¡El correo no esta registrado!"
+                message: "El correo no esta registrado"
             })
         }
 
         //Envio correo:
-        const transport = nodemailer.createTransport({
-            host: process.env.PORT, //(para Gmail)
-            service: "gmail", //(para Gmail)
-            port: 587,
-            auth: {
-                user: process.env.USER_EMAIL,
-                pass: process.env.PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        })
+        const html = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
 
-        await transport.sendMail({
-            from: process.env.USER_EMAIL,//Correo del emisor
-            to: `${user.email}`,//Correo del receptor
-            subject: "Maxi Barber Shop",//Asunto del correo
-            html: `<div>
-            <h1>Recuperar la contraseña de tu cuenta Maxi Barber Shop:</h1>
-            <h3>¡Hola, ${user.names}!</h3>
-            <p>Solicitaste la recuperacion de contraseña de tu cuenta Maxi.</p>
-            <p>Para restablecer tu contraseña da click <a href="${process.env.URL_FRONTEND}/restablecer/${user.id}">AQUI</a> y sigue con los pasos, gracias por preferirnos.</p>
-            <hr/>
-            <footer><h4>Att: team Maxi</h4></footer>
-        </div>`
-        })
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">Recuperar la contraseña de tu cuenta Maxi Barber Shop:</h1>
+            <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Solicitaste la recuperacion de contraseña de tu cuenta Maxi.
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Para restablecer tu contraseña da click <a href="${process.env.URL_FRONTEND}/restablecer/${user.id}">AQUI</a> y sigue con los pasos, gracias por preferirnos.
+            </p>
+            <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 20px;"/>
+            <footer>
+                <h4 style="font-size: 16px; margin-top: 0; color:#0d590d;">Atentamente: team Maxi</h4>
+            </footer>
+        </div>
+
+        </body>
+        </html>`
+
+        sendMail(html, email)
 
         return res.status(200).json({
             code: 200,
@@ -317,32 +279,34 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
         const password = createHash(confirmNewPass)
 
         //Envio correo:
-        const transport = nodemailer.createTransport({
-            host: process.env.PORT, //(para Gmail)
-            service: "gmail", //(para Gmail)
-            port: 587,
-            auth: {
-                user: process.env.USER_EMAIL,
-                pass: process.env.PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        })
+        const html = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
 
-        await transport.sendMail({
-            from: process.env.USER_EMAIL,//Correo del emisor
-            to: `${user.email}`,//Correo del receptor
-            subject: "Maxi Barber Shop",//Asunto del correo
-            html: `<div>
-            <h1>Contraseña restablecida:</h1>
-            <h3>¡Hola, ${user.names}!</h3>
-            <p>(Este es un correo informativo).</p>
-            <p>Se restableció exitosamente la contraseña de tu cuenta Maxi, si no fuiste tú ponte en contacto con soporte, en caso contrario hacer caso omiso.</p>
-            <hr/>
-            <footer><h4>Att: team Maxi</h4></footer>
-        </div>`
-        })
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Contraseña restablecida exitosamente!</h1>
+            <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                (Este es un correo informativo).
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Se restableció exitosamente la contraseña de tu cuenta Maxi, si no fuiste tú ponte en contacto con soporte, en caso contrario hacer caso omiso.
+            </p>
+            <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 20px;"/>
+            <footer>
+                <h4 style="font-size: 16px; margin-top: 0; color:#0d590d;">Atentamente: team Maxi</h4>
+            </footer>
+        </div>
+
+        </body>
+        </html>`
+
+        sendMail(html, user.email)
 
         await userManager.updateUserPassword(uid, { password: password })
 
@@ -360,7 +324,7 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
 })
 
 //Consultar reservas (Admin):
-userRouter.get("/bookings/:adminId", authAdmin, async (req, res) => {
+userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
     try {
         const bookings = await userManager.adminGetBookings()
 
@@ -377,7 +341,7 @@ userRouter.get("/bookings/:adminId", authAdmin, async (req, res) => {
 });
 
 //Crear reserva:
-userRouter.post("/createBooking/:uid", async (req, res) => {
+userRouter.post("/reservarturno/:uid", async (req, res) => {
     try {
         const uid = req.params.uid
         const user = await userManager.getUserById(uid)
@@ -398,33 +362,63 @@ userRouter.post("/createBooking/:uid", async (req, res) => {
             })
         }
 
-        //Envio correo:
-        const transport = nodemailer.createTransport({
-            host: process.env.PORT, //(para Gmail)
-            service: "gmail", //(para Gmail)
-            port: 587,
-            auth: {
-                user: process.env.USER_EMAIL,
-                pass: process.env.PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        })
+        const htmlUser = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
 
-        await transport.sendMail({
-            from: process.env.USER_EMAIL,//Correo del emisor
-            to: `${user.email}`,//Correo del receptor
-            subject: "¡Turno reservado exitosamente!",//Asunto del correo
-            html: `<div>
-            <h3>¡Hola, ${user.names}!</h3>
-            <p>Haz reservado con exito tu turno en Maxi Barber Shop para el ${date} a las ${time} ${typeTime}, para cancelar o reagendar tu turno inicia sesion en nustra plataforma y en tu perfil podras gestionarlo.</p>
-            <p>¡Gracias por elegirnos!</p>
-            <br/>
-            <hr/>
-            <footer><h4>Att: team Maxi</h4></footer>
-        </div>`
-        })
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reservado exitosamente!</h1>
+            <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Haz reservado con exito tu turno en Maxi Barber Shop para el ${date} a las ${time} ${typeTime}, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                ¡Gracias por elegirnos!
+            </p>
+            <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 20px;"/>
+            <footer>
+                <h4 style="font-size: 16px; margin-top: 0; color:#0d590d;">Atentamente: team Maxi</h4>
+            </footer>
+        </div>
+
+        </body>
+        </html>`
+
+        const htmlAdmin = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
+
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Nuevo turno reservado!</h1>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                (Notificacion nuevo turno reservado)
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Reserva realizada con exito para el ${date} a las ${time} ${typeTime} para ${user.names} ${user.surnames}
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Para más detalles, ingresa a la plataforma.
+            </p>
+        </div>
+
+        </body>
+        </html>`
+
+        //Envio correo al usuario:
+        sendMail(htmlUser, user.email)
+
+        //Envio correo al administrador:
+        sendMail(htmlAdmin, `${process.env.ADMIN_EMAIL}`)
 
         const newBooking = {
             date: date,
@@ -446,42 +440,5 @@ userRouter.post("/createBooking/:uid", async (req, res) => {
         })
     }
 });
-
-//Consultar reserva por UserID
-userRouter.get("/reserva/:uid", jwtVerify , async (req, res) => {
-    try {
-        const uid = req.params.uid
-
-        const reserve = await userManager.userGetBookingById(uid)
-
-        if (!reserve) {
-            return res.status(404).json({
-                code: 404,
-                message: "La reserva no existe"
-            })
-        }
-
-        const body = {
-            id: reserve.id,
-            role: reserve.role,
-            names: reserve.names,
-            surnames: reserve.surnames,
-            phone: reserve.phone,
-            email: reserve.email,
-            Booking: reserve.Booking
-        }
-
-        return res.status(200).json({
-            code: 200,
-            body: body
-        })
-
-    } catch (e) {
-        return res.status(500).json({
-            code: 500,
-            message: "Error al consultar la reserva"
-        })
-    }
-})
 
 export default userRouter;

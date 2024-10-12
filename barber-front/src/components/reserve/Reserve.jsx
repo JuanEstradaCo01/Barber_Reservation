@@ -54,7 +54,7 @@ function Reserve() {
 
         setLoaderMini(true)
 
-        await fetch(`${process.env.REACT_APP_URL_BACK}/createBooking/${userId}`, {
+        await fetch(`${process.env.REACT_APP_URL_BACK}/reservarturno/${userId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -66,7 +66,7 @@ function Reserve() {
                 setLoaderMini(false)
                 if (data.code === 201) {
                     notifySuccess(data.message)
-                    navigate(`/user/${userId}`)
+                    navigate(`/usuario/${userId}`)
                 } else if (data.code === 500 || 404 || 401) {
                     MySwal.fire({
                         show: true,

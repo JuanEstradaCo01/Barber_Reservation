@@ -41,7 +41,7 @@ function MainView() {
                 setLoaderMini(false)
                 
                 if (data.code === 200) {
-                    navigate(`/user/${data.uid}`)
+                    navigate(`/usuario/${data.uid}`)
                 } else if (data.code === 404 || 401) {
                     MySwal.fire({
                         show: true,

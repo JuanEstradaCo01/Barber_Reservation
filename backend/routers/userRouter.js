@@ -328,6 +328,12 @@ userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
     try {
         const bookings = await userManager.adminGetBookings()
 
+        const now = new Date().toLocaleDateString()
+
+        const booking = bookings[0].Booking.date
+
+        const validar = booking < now
+
         return res.status(200).json({
             code: 200,
             body: bookings
@@ -341,7 +347,7 @@ userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
 });
 
 //Crear reserva:
-userRouter.post("/reservarturno/:uid", async (req, res) => {
+userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
     try {
         const uid = req.params.uid
         const user = await userManager.getUserById(uid)
@@ -362,6 +368,10 @@ userRouter.post("/reservarturno/:uid", async (req, res) => {
             })
         }
 
+        //Formateo la fecha para manejarla de una manera mas practica en la logica
+        const [year, month, day] = date.split('-');
+        const newFormatDate = `${day}/${month}/${year}`
+
         const htmlUser = `<!DOCTYPE html>
         <html>
         <head>
@@ -375,7 +385,7 @@ userRouter.post("/reservarturno/:uid", async (req, res) => {
             <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reservado exitosamente!</h1>
             <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Haz reservado con exito tu turno en Maxi Barber Shop para el ${date} a las ${time} ${typeTime}, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
+                Haz reservado con exito tu turno en Maxi Barber Shop para el ${newFormatDate} a las ${time} ${typeTime}, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 ¡Gracias por elegirnos!
@@ -404,7 +414,7 @@ userRouter.post("/reservarturno/:uid", async (req, res) => {
                 (Notificacion nuevo turno reservado)
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Reserva realizada con exito para el ${date} a las ${time} ${typeTime} para ${user.names} ${user.surnames}
+                Reserva realizada con exito para el ${newFormatDate} a las ${time} ${typeTime} para ${user.names} ${user.surnames}
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 Para más detalles, ingresa a la plataforma.
@@ -421,7 +431,7 @@ userRouter.post("/reservarturno/:uid", async (req, res) => {
         sendMail(htmlAdmin, `${process.env.ADMIN_EMAIL}`)
 
         const newBooking = {
-            date: date,
+            date: newFormatDate,
             time: time,
             typeTime: typeTime,
             uid: uid
@@ -440,5 +450,32 @@ userRouter.post("/reservarturno/:uid", async (req, res) => {
         })
     }
 });
+
+//Cancelar turno:
+userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
+    try{
+        const uid = req.params.uid
+
+        const user = await userManager.getUserById(uid)
+        if(!user) {
+            return res.status(404).json({
+                code: 404,
+                message: "Usuario no encontrado"
+            })
+        }
+
+        await bookingManager.deleteBooking(uid)
+
+        return res.status(200).json({
+            code: 200,
+            message: "¡Turno cancelado exitosamente!"
+        })
+    }catch(e){
+        return res.secure(500).json({
+            code: 500,
+            message: "Error al cancelar el turno"
+        })
+    }
+})
 
 export default userRouter;

@@ -27,7 +27,7 @@ class BookingManager {
     async deleteBooking(id) {
         return this.model.destroy({
             where: {
-                id: id,
+                uid: id,
             },
         })
     }

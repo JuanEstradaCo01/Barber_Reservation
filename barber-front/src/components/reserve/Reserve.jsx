@@ -56,6 +56,7 @@ function Reserve() {
 
         await fetch(`${process.env.REACT_APP_URL_BACK}/reservarturno/${userId}`, {
             method: "POST",
+            credentials: "include",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -107,7 +108,6 @@ function Reserve() {
                     <option value="10:30">10:30 AM</option>
                     <option value="11:00">11:00 AM</option>
                     <option value="11:30">11:30 AM</option>
-                    <option value="12:00">12:00</option>
                 </select> : <></>}
 
                 {pm === true ? <select onChange={(e) => { setTime(e.target.value) }} name="time" id="time">

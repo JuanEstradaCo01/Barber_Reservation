@@ -10,7 +10,12 @@ class UserManager {
         return this.model.findAll({
             include: [{
                 model: BookingModel
-            }]
+            }],
+            attributes: { exclude: ['password'] },
+            order: [
+                [BookingModel,'date', 'ASC'],
+                [BookingModel,'time', 'ASC']    
+            ]
         })
     }
 

@@ -21,7 +21,7 @@ function UserProfile() {
 
     const navigate = useNavigate()
 
-    useEffect(() => {
+    function consultarUsuario() {
         fetch(`${process.env.REACT_APP_URL_BACK}/usuario/${uid}`, {
             credentials: "include"
         })
@@ -43,7 +43,54 @@ function UserProfile() {
             .catch((e) => {
                 console.log(e)
             })
+    }
+
+    useEffect(() => {
+        consultarUsuario()
     }, [])
+
+    function cancelarTurno() {
+        Swal.fire({
+            title: "¿Deseas cancelar tu turno?",
+            text: "Esta accion es irreversible y tendras que agendar nuevamente",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            confirmButtonText: "Confirmar",
+            cancelButtonColor: "#d33",
+            cancelButtonText: "Cancelar",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`${process.env.REACT_APP_URL_BACK}/cancelarturno/${uid}`, {
+                    method: "DELETE",
+                    credentials: "include"
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.code === 200) {
+                            MySwal.fire({
+                                show: true,
+                                title: `<strong>${data.message}</strong>`,
+                                icon: "success",
+                                showConfirmButton: true
+                            })
+                            consultarUsuario()
+                        } else if (data.code === 500 || 404) {
+                            MySwal.fire({
+                                show: true,
+                                title: `<strong>${data.message}</strong>`,
+                                icon: "error",
+                                showConfirmButton: true
+                            })
+                        }
+                    })
+                    .catch((e) => {
+                        console.log(e)
+                    })
+            }
+        });
+    }
 
     if (user === "") {
         return <Loader />
@@ -70,9 +117,9 @@ function UserProfile() {
             <h2>Proximo turno:</h2>
 
             {user.Booking === null ? <h3>¡No tienes turno reservado!</h3> : <div><h4>Turno reservado para el {user.Booking.date} a las {user.Booking.time} {user.Booking.typeTime}</h4>
-            <div className="contenedorUsuarioReserva">
-            <Link to={"/reagendarturno"}><Button variant="success">Reagendar turno</Button>{' '}</Link>
-            <Button variant="danger">Cancelar turno</Button>{' '}</div></div>}
+                <div className="contenedorUsuarioReserva">
+                    <Link to={"/reagendarturno"}><Button variant="success">Reagendar turno</Button>{' '}</Link>
+                    <Button onClick={cancelarTurno} variant="danger">Cancelar turno</Button>{' '}</div></div>}
         </body>
     )
 }

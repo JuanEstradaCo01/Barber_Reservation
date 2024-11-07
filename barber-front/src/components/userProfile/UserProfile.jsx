@@ -23,13 +23,13 @@ function UserProfile() {
 
     function consultarUsuario() {
         fetch(`${process.env.REACT_APP_URL_BACK}/usuario/${uid}`, {
-            credentials: "include"
+            credentials: 'include'
         })
-            .then(res => res.json())
+            .then(res => res.json()
             .then(data => {
-                if (data.code === 200 || 404) {
+                if(res.status === 200 || res.status === 404){
                     setUser(data.body)
-                } else if (data.code === 401 || 500) {
+                }else if(res.status === 401 || res.status === 500){
                     navigate("/")
                     addId("")
                     MySwal.fire({
@@ -39,15 +39,11 @@ function UserProfile() {
                         showConfirmButton: true
                     })
                 }
-            })
+            }))
             .catch((e) => {
                 console.log(e)
             })
     }
-
-    useEffect(() => {
-        consultarUsuario()
-    }, [])
 
     function cancelarTurno() {
         Swal.fire({
@@ -91,6 +87,10 @@ function UserProfile() {
             }
         });
     }
+
+    useEffect(() => {
+        consultarUsuario()
+    }, [])
 
     if (user === "") {
         return <Loader />

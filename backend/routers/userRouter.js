@@ -16,7 +16,6 @@ const jwtVerify = async (req, res, next) => {
 
     if (token === undefined) {
         return res.status(401).json({
-            code: 401,
             message: "Autenticación fallida"
         })
     }
@@ -25,7 +24,6 @@ const jwtVerify = async (req, res, next) => {
 
         if (err) {
             return res.status(401).json({
-                code: 401,
                 message: "Token expirado o invalido"
             })
         }
@@ -85,13 +83,6 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
 
         const reserve = await userManager.userGetBookingById(uid)
 
-        if (!reserve) {
-            return res.status(404).json({
-                code: 404,
-                message: "La reserva no existe"
-            })
-        }
-
         const body = {
             id: reserve.id,
             role: reserve.role,
@@ -102,14 +93,19 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
             Booking: reserve.Booking
         }
 
+        //Devuelvo el usuario si no tiene reserva
+        if (!reserve) {
+            return res.status(404).json({
+                body
+            })
+        }
+
         return res.status(200).json({
-            code: 200,
-            body: body
+            body
         })
 
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Error al consultar la reserva"
         })
     }

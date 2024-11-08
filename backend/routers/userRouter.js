@@ -40,14 +40,12 @@ const authAdmin = async (req, res, next) => {
 
     if (!user) {
         return res.status(400).json({
-            code: 400,
             message: "La autenticación falló"
         })
     }
 
     if (user.role !== "Admin") {
         return res.status(401).json({
-            code: 401,
             message: "No estas autorizado"
         })
     }
@@ -82,6 +80,11 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
         const uid = req.params.uid
 
         const reserve = await userManager.userGetBookingById(uid)
+        if(!reserve) {
+            return res.status(401).json({
+                message: "El usuario no existe"
+            })
+        }
 
         const body = {
             id: reserve.id,
@@ -118,14 +121,12 @@ userRouter.post("/registro", async (req, res) => {
         if (names === "" || surnames === "" || phone === "" || email === "" || password === "") {
             let body = {}
             body.message = "Completa todos los campos"
-            body.code = 401
             return res.status(401).json(body)
         }
 
         const findUserIfExist = await userManager.getUserByEmail(email)
         if(findUserIfExist) {
             return res.status(401).json({
-                code: 401,
                 message: "Ya existe un usuario registrado con este correo"
             })
         }
@@ -168,12 +169,10 @@ userRouter.post("/registro", async (req, res) => {
         await userManager.createUser(newUser)
 
         res.status(201).json({
-            code: 201,
-            message: `Registro exitoso - ${names}`
+            message: `Registro exitoso`
         })
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Error al registrarse"
         })
     }
@@ -186,7 +185,6 @@ userRouter.post("/restablecimientodecontrasena", async (req, res) => {
 
         if (email === "" || undefined) {
             return res.status(401).json({
-                code: 401,
                 message: "¡Completa el campo!"
             })
         }
@@ -194,7 +192,6 @@ userRouter.post("/restablecimientodecontrasena", async (req, res) => {
         const user = await userManager.getUserByEmail(email)
         if (!user) {
             return res.status(404).json({
-                code: 404,
                 message: "El correo no esta registrado"
             })
         }
@@ -230,13 +227,11 @@ userRouter.post("/restablecimientodecontrasena", async (req, res) => {
         sendMail(html, email)
 
         return res.status(200).json({
-            code: 200,
             message: "Se envio un correo a la direccion ¡Verifica tu email!"
         })
 
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Error al restablecer la contraseña"
         })
     }
@@ -251,7 +246,6 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                code: 404,
                 message: "No se encontró el usuario"
             })
         }
@@ -260,14 +254,12 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
 
         if (newPass === "" || confirmNewPass === "") {
             return res.status(401).json({
-                code: 401,
                 message: "Completa todos los campos"
             })
         }
 
         if (newPass !== confirmNewPass) {
             return res.status(401).json({
-                code: 401,
                 message: "Las contraseñas no son iguales"
             })
         }
@@ -307,13 +299,11 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
         await userManager.updateUserPassword(uid, { password: password })
 
         return res.status(200).json({
-            code: 200,
             message: "Se restableció exitosamente la contraseña"
         })
 
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Error al restablecer la contraseña"
         })
     }
@@ -331,12 +321,10 @@ userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
         const validar = booking < now
 
         return res.status(200).json({
-            code: 200,
             body: bookings
         })
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Error al consultar las reservas"
         })
     }
@@ -350,7 +338,6 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
 
         if (!user) {
             return res.status(404).json({
-                code: 404,
                 message: "Usuario no encontrado"
             })
         }
@@ -359,7 +346,6 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
 
         if (date === "" || time === "" || typeTime === "") {
             return res.status(401).json({
-                code: 401,
                 message: "Llena todos los campos"
             })
         }
@@ -436,12 +422,10 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
         await bookingManager.createBooking(newBooking)
 
         return res.status(201).json({
-            code: 201,
             message: `Reserva creada con éxito`
         })
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Error al crear la reserva, intenta de nuevo"
         })
     }
@@ -455,7 +439,6 @@ userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
         const user = await userManager.getUserById(uid)
         if(!user) {
             return res.status(404).json({
-                code: 404,
                 message: "Usuario no encontrado"
             })
         }
@@ -463,12 +446,10 @@ userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
         await bookingManager.deleteBooking(uid)
 
         return res.status(200).json({
-            code: 200,
             message: "¡Turno cancelado exitosamente!"
         })
     }catch(e){
         return res.secure(500).json({
-            code: 500,
             message: "Error al cancelar el turno"
         })
     }

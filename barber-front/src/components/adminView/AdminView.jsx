@@ -23,28 +23,28 @@ function AdminView(props) {
         fetch(`${process.env.REACT_APP_URL_BACK}/reservas/${uid}`, {
             credentials: "include"
         })
-            .then(res => res.json())
-            .then(data => {
-                setLoader(false)
-                if (data.code === 200) {
-                    //Valido que usuario tiene reserva
-                    const list = []
-                    data.body.forEach(item => {
-                        if (item.Booking !== null) {
-                            list.push(item)
-                        }
-                    });
-                    setBookings(list)
-                } else if (data.code === 500) {
-                    navigate("/")
-                    MySwal.fire({
-                        show: true,
-                        title: `<strong>${data.message}</strong>`,
-                        icon: "error",
-                        showConfirmButton: true
-                    })
-                }
-            })
+            .then(res => res.json()
+                .then(data => {
+                    setLoader(false)
+                    if (res.status === 200) {
+                        //Valido que usuario tiene reserva
+                        const list = []
+                        data.body.forEach(item => {
+                            if (item.Booking !== null) {
+                                list.push(item)
+                            }
+                        });
+                        setBookings(list)
+                    } else if (res.status === 500) {
+                        navigate("/")
+                        MySwal.fire({
+                            show: true,
+                            title: `<strong>${data.message}</strong>`,
+                            icon: "error",
+                            showConfirmButton: true
+                        })
+                    }
+                }))
             .catch((e) => {
                 console.log(e)
             })

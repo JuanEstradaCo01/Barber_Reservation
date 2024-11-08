@@ -15,19 +15,19 @@ export function Userprovider(props) {
             method: "POST",
             credentials: 'include'
         })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code === 200) {
-                    setUserId("")
-                }
-            })
+            .then(res => res.json()
+                .then(data => {
+                    if (res.status === 200) {
+                        setUserId("")
+                    }
+                }))
             .catch((e) => {
                 console.log(e)
             })
     }
 
     return (
-        <Proveedor value={ { userId, addId, logOut } }>
+        <Proveedor value={{ userId, addId, logOut }}>
             {props.children}
         </Proveedor>
     )

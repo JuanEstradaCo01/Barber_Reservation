@@ -62,21 +62,21 @@ function Reserve() {
             },
             body: JSON.stringify(body)
         })
-            .then(res => res.json())
-            .then(data => {
-                setLoaderMini(false)
-                if (data.code === 201) {
-                    notifySuccess(data.message)
-                    navigate(`/usuario/${userId}`)
-                } else if (data.code === 500 || 404 || 401) {
-                    MySwal.fire({
-                        show: true,
-                        title: `<strong>${data.message}</strong>`,
-                        icon: "error",
-                        showConfirmButton: true
-                    })
-                }
-            })
+            .then(res => res.json()
+                .then(data => {
+                    setLoaderMini(false)
+                    if (res.status === 201) {
+                        notifySuccess(data.message)
+                        navigate(`/usuario/${userId}`)
+                    } else if (res.status === 500 || 404 || 401) {
+                        MySwal.fire({
+                            show: true,
+                            title: `<strong>${data.message}</strong>`,
+                            icon: "error",
+                            showConfirmButton: true
+                        })
+                    }
+                }))
             .catch((e) => {
                 console.log(e)
             })
@@ -97,7 +97,7 @@ function Reserve() {
                     <option onClick={changeTimeAm} value="AM">AM</option>
                     <option onClick={changeTimePm} value="PM">PM</option>
                 </select>
-                
+
                 {am === true ? <select onChange={(e) => { setTime(e.target.value) }} name="time" id="time">
                     <option value="" disabled>Selecciona la hora del turno</option>
                     <option value="08:00">08:00 AM</option>

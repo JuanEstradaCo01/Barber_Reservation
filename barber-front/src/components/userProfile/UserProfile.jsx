@@ -26,20 +26,20 @@ function UserProfile() {
             credentials: 'include'
         })
             .then(res => res.json()
-            .then(data => {
-                if(res.status === 200 || res.status === 404){
-                    setUser(data.body)
-                }else if(res.status === 401 || res.status === 500){
-                    navigate("/")
-                    addId("")
-                    MySwal.fire({
-                        show: true,
-                        title: `<strong>${data.message}</strong>`,
-                        icon: "error",
-                        showConfirmButton: true
-                    })
-                }
-            }))
+                .then(data => {
+                    if (res.status === 200 || res.status === 404) {
+                        setUser(data.body)
+                    } else if (res.status === 401 || res.status === 500) {
+                        navigate("/")
+                        addId("")
+                        MySwal.fire({
+                            show: true,
+                            title: `<strong>${data.message}</strong>`,
+                            icon: "error",
+                            showConfirmButton: true
+                        })
+                    }
+                }))
             .catch((e) => {
                 console.log(e)
             })
@@ -62,25 +62,25 @@ function UserProfile() {
                     method: "DELETE",
                     credentials: "include"
                 })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.code === 200) {
-                            MySwal.fire({
-                                show: true,
-                                title: `<strong>${data.message}</strong>`,
-                                icon: "success",
-                                showConfirmButton: true
-                            })
-                            consultarUsuario()
-                        } else if (data.code === 500 || 404) {
-                            MySwal.fire({
-                                show: true,
-                                title: `<strong>${data.message}</strong>`,
-                                icon: "error",
-                                showConfirmButton: true
-                            })
-                        }
-                    })
+                    .then(res => res.json()
+                        .then(data => {
+                            if (res.status === 200) {
+                                MySwal.fire({
+                                    show: true,
+                                    title: `<strong>${data.message}</strong>`,
+                                    icon: "success",
+                                    showConfirmButton: true
+                                })
+                                consultarUsuario()
+                            } else if (res.status === 500 || 404) {
+                                MySwal.fire({
+                                    show: true,
+                                    title: `<strong>${data.message}</strong>`,
+                                    icon: "error",
+                                    showConfirmButton: true
+                                })
+                            }
+                        }))
                     .catch((e) => {
                         console.log(e)
                     })

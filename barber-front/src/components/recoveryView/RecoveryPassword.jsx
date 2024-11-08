@@ -43,21 +43,21 @@ function RecoveryPassword() {
                 confirmNewPass: confirmNewPass
             })
         })
-            .then(res => res.json())
-            .then(data => {
-                setMiniLoader(false)
-                if (data.code === 200) {
-                    notifySuccess(data.message)
-                    navigate("/")
-                } else if (data.code === 500 || 401 || 404) {
-                    MySwal.fire({
-                        show: true,
-                        title: `<strong>${data.message}</strong>`,
-                        icon: "error",
-                        showConfirmButton: true
-                    })
-                }
-            })
+            .then(res => res.json()
+                .then(data => {
+                    setMiniLoader(false)
+                    if (res.status === 200) {
+                        notifySuccess(data.message)
+                        navigate("/")
+                    } else if (res.status === 500 || 401 || 404) {
+                        MySwal.fire({
+                            show: true,
+                            title: `<strong>${data.message}</strong>`,
+                            icon: "error",
+                            showConfirmButton: true
+                        })
+                    }
+                }))
             .catch((e) => {
                 console.log(e)
             })
@@ -75,7 +75,7 @@ function RecoveryPassword() {
                     <input onChange={(e) => { setNewPass(e.target.value) }} className="inputRecovery" type="password" placeholder="Nueva contraseña" />
 
                     <input onChange={(e) => { setConfirmNewPass(e.target.value) }} className="inputRecovery" type="password" placeholder="Confirmar contraseña" />
-                    
+
                     {miniLoader === true ? <button className="btnEnviarRecovery" type="submit"><MiniLoader /></button> : <button onClick={recoverPass} className="btnEnviarRecovery" type="submit">Enviar</button>}
                 </form>
             </div>

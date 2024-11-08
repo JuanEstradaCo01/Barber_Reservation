@@ -48,21 +48,21 @@ function RegisterView() {
             },
             body: JSON.stringify(user)
         })
-            .then(res => res.json())
-            .then(data => {
-                setLoaderMini(false)
-                if (data.code === 201) {
-                    notifySuccess()
-                    navigate("/")
-                } else if (data.code === 500 || 401) {
-                    MySwal.fire({
-                        show: true,
-                        title: `<strong>${data.message}</strong>`,
-                        icon: "error",
-                        showConfirmButton: true
-                    })
-                }
-            })
+            .then(res => res.json()
+                .then(data => {
+                    setLoaderMini(false)
+                    if (res.status === 201) {
+                        notifySuccess()
+                        navigate("/")
+                    } else if (res.status === 500 || 401) {
+                        MySwal.fire({
+                            show: true,
+                            title: `<strong>${data.message}</strong>`,
+                            icon: "error",
+                            showConfirmButton: true
+                        })
+                    }
+                }))
             .catch((e) => {
                 console.log(e)
             })

@@ -21,7 +21,6 @@ sessionRouter.post("/signIn", async (req, res) => {
         if (user === "" || password === "") {
             let body = {}
             body.message = "Completa todos los campos"
-            body.code = 401
             return res.status(401).json(body)
         }
 
@@ -32,7 +31,6 @@ sessionRouter.post("/signIn", async (req, res) => {
         //Valido si existe el correo en la DB:
         if (!finduser) {
             let body = {}
-            body.code = 404
             body.message = "Usuario no registrado"
             return res.status(404).json(body)
         }
@@ -45,12 +43,10 @@ sessionRouter.post("/signIn", async (req, res) => {
         //Valido si la contraseña es correcta:
         if (!isValidPassword(password, userTool.password)) {
             let body = {}
-            body.code = 401
             body.message = "Contraseña incorrecta"
             return res.status(401).json(body)
         }
 
-        body.code = 200
         body.uid = userTool.id
 
         const uidObject = {
@@ -62,7 +58,7 @@ sessionRouter.post("/signIn", async (req, res) => {
         body.message = "Usuario autenticado correctamente"
         console.log("✅ Iniciaste sesion")
 
-        return res.cookie("authToken", `${accessToken}`, {
+        return res.status(200).cookie("authToken", `${accessToken}`, {
             sameSite: 'Strict',
             signed: true,
             maxAge: 3600000, //1 hora
@@ -74,7 +70,7 @@ sessionRouter.post("/signIn", async (req, res) => {
 
     } catch (e) {
         return res.status(500).json({
-            error: "Ocurrio un error al iniciar sesion", e
+            message: "Ocurrio un error al iniciar sesion", e
         })
     }
 })
@@ -85,20 +81,17 @@ sessionRouter.post("/logout", (req, res) => {
 
         if (token === undefined) {
             return res.status(404).json({
-                code: 404,
                 message: "Operacion invalida, no existe una sesion activa"
             })
         }
 
         console.log("⛔ Sesion cerrada")
 
-        return res.clearCookie("authToken").json({
-            code: 200,
+        return res.status(200).clearCookie("authToken").json({
             message: "Sesion cerrada"
         })
     } catch (e) {
         return res.status(500).json({
-            code: 500,
             message: "Ocurrio un error al cerrar sesion", e
         })
     }

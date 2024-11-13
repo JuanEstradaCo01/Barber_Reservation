@@ -19,7 +19,6 @@ class BookingManager {
         return this.model.create({
             date: body.date,
             time: body.time,
-            typeTime: body.typeTime.toUpperCase(),
             uid: body.uid
         })
     }

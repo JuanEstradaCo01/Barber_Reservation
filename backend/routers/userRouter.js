@@ -316,12 +316,24 @@ userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
 
         const now = new Date().toLocaleDateString()
 
-        const booking = bookings[0].Booking.date
+        const bookingsSuccess = []
 
-        const validar = booking < now
+        //Recorro cada reserva, verifico si es del dia anterior y se elimina en ese caso:
+        bookings.forEach(item => {
+            const json = item.toJSON()
+            if(json.Booking !== null && json.Booking.date < now) {
+                cleanOldBookings(json.Booking.uid)
+            }else if(json.Booking !== null) {
+                bookingsSuccess.push(json)
+            }
+        })
+
+        async function cleanOldBookings(id) {
+            await bookingManager.deleteBooking(id)
+        }
 
         return res.status(200).json({
-            body: bookings
+            body: bookingsSuccess
         })
     } catch (e) {
         return res.status(500).json({
@@ -342,9 +354,9 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        const { date, time, typeTime } = req.body
+        const { date, time } = req.body
 
-        if (date === "" || time === "" || typeTime === "") {
+        if (date === "" || time === "") {
             return res.status(401).json({
                 message: "Llena todos los campos"
             })
@@ -367,7 +379,7 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
             <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reservado exitosamente!</h1>
             <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Haz reservado con exito tu turno en Maxi Barber Shop para el ${newFormatDate} a las ${time} ${typeTime}, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
+                Haz reservado con exito tu turno en Maxi Barber Shop para el ${newFormatDate} a las ${time} horas, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 ¡Gracias por elegirnos!
@@ -396,7 +408,7 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
                 (Notificacion nuevo turno reservado)
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Reserva realizada con exito para el ${newFormatDate} a las ${time} ${typeTime} para ${user.names} ${user.surnames}
+                Reserva realizada con exito para el ${newFormatDate} a las ${time} horas para ${user.names} ${user.surnames}
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 Para más detalles, ingresa a la plataforma.
@@ -415,7 +427,6 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
         const newBooking = {
             date: newFormatDate,
             time: time,
-            typeTime: typeTime,
             uid: uid
         }
 

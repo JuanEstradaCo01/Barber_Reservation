@@ -22,10 +22,9 @@ function App() {
                         <Route path='/usuario/:uid' element={<UserProfile />} />
                         <Route path='/recovery' element={<RecoveryView />} />
                         <Route path='/restablecer/:uid' element={<RecoveryPassword />} />
-                        <Route path='/reservar' element={<Reserve />} />
+                        <Route path='/reservar/:uid' element={<Reserve />} />
                         <Route path='*' element={<NotFoundPage />} />
                     </Routes>
-
                 </BrowserRouter>
             </Userprovider>
         </>

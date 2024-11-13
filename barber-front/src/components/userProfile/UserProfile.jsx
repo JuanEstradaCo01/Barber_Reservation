@@ -107,7 +107,7 @@ function UserProfile() {
             <h2>¡Hola, {user.names}!</h2>
 
             {user.Booking !== null ? <></> : <div className="btnReservarContenedor">
-                <Link to={"/reservar"}><Button variant="primary">Reservar turno</Button>{' '}</Link>
+                <Link to={`/reservar/${user.id}`}><Button variant="primary">Reservar turno</Button>{' '}</Link>
             </div>}
 
             <br />
@@ -116,7 +116,7 @@ function UserProfile() {
 
             <h2>Proximo turno:</h2>
 
-            {user.Booking === null ? <h3>¡No tienes turno reservado!</h3> : <div><h4>Turno reservado para el {user.Booking.date} a las {user.Booking.time} {user.Booking.typeTime}</h4>
+            {user.Booking === null ? <h3>¡No tienes turno reservado!</h3> : <div><h4>Turno reservado para el {user.Booking.date} a las {user.Booking.time} horas.</h4>
                 <div className="contenedorUsuarioReserva">
                     <Link to={"/reagendarturno"}><Button variant="success">Reagendar turno</Button>{' '}</Link>
                     <Button onClick={cancelarTurno} variant="danger">Cancelar turno</Button>{' '}</div></div>}

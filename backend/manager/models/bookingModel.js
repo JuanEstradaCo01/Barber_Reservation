@@ -13,9 +13,6 @@ const BookingModel = sequelize.define('Bookings', {
     time: {
         type: DataTypes.STRING
     },
-    typeTime: {
-        type: DataTypes.STRING
-    },
     uid: {
         type: DataTypes.INTEGER
     }

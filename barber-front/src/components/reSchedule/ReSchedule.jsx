@@ -1,20 +1,18 @@
-import "./reserve.css"
-import React, { useContext, useState } from "react";
-import { userContext } from "../context/Context"
-import MiniLoader from "../miniLoader/MiniLoader"
+import React, { useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import Swal from "sweetalert2"
 import withReactComponent from "sweetalert2-react-content"
-import { useNavigate } from "react-router-dom";
+import MiniLoader from "../miniLoader/MiniLoader"
 
-function Reserve() {
+function ReSchedule() {
 
-    const { userId } = useContext(userContext);
-
-    const [loaderMini, setLoaderMini] = useState(false)
+    const { uid } = useParams()
 
     //Inputs
     const [date, setDate] = useState("")
     const [time, setTime] = useState("")
+
+    const [loaderMini, setLoaderMini] = useState(false)
 
     const navigate = useNavigate()
 
@@ -40,8 +38,8 @@ function Reserve() {
 
         setLoaderMini(true)
 
-        await fetch(`${process.env.REACT_APP_URL_BACK}/reservarturno/${userId}`, {
-            method: "POST",
+        await fetch(`${process.env.REACT_APP_URL_BACK}/reagendarturno/${uid}`, {
+            method: "PUT",
             credentials: "include",
             headers: {
                 "Content-Type": "application/json",
@@ -51,9 +49,9 @@ function Reserve() {
             .then(res => res.json()
                 .then(data => {
                     setLoaderMini(false)
-                    if (res.status === 201) {
+                    if (res.status === 200) {
                         notifySuccess(data.message)
-                        navigate(`/usuario/${userId}`)
+                        navigate(`/usuario/${uid}`)
                     } else if (res.status === 500 || 404 || 401) {
                         MySwal.fire({
                             show: true,
@@ -71,7 +69,7 @@ function Reserve() {
     return (
         <body id="bodyReservar">
             <form id="formReservar">
-                <h2>Agenda tu reserva</h2>
+                <h2>Reagenda tu reserva</h2>
                 <hr />
 
                 <h6>Horario de servicio 08:00AM - 08:30PM</h6>
@@ -107,10 +105,10 @@ function Reserve() {
                     <option value="20:30">08:30 PM</option>
                 </select>
 
-                {loaderMini === false ? <button onClick={reserve} type="submit">Reservar</button> : <button type="submit"><MiniLoader /></button>}
+                {loaderMini === false ? <button onClick={reserve} type="submit">Confirmar</button> : <button type="submit"><MiniLoader /></button>}
             </form>
         </body>
     )
 }
 
-export default Reserve;
+export default ReSchedule;

@@ -9,6 +9,7 @@ import { Userprovider } from "./components/context/Context.jsx"
 import RecoveryView from './components/recoveryView/RecoveryView.jsx';
 import RecoveryPassword from './components/recoveryView/RecoveryPassword.jsx';
 import Reserve from './components/reserve/Reserve.jsx';
+import ReSchedule from './components/reSchedule/ReSchedule.jsx';
 
 function App() {
     return (
@@ -23,6 +24,7 @@ function App() {
                         <Route path='/recovery' element={<RecoveryView />} />
                         <Route path='/restablecer/:uid' element={<RecoveryPassword />} />
                         <Route path='/reservar/:uid' element={<Reserve />} />
+                        <Route path='/reagendarturno/:uid' element={<ReSchedule />} />
                         <Route path='*' element={<NotFoundPage />} />
                     </Routes>
                 </BrowserRouter>

@@ -11,6 +11,7 @@ function generateToken(uidObject) {
     return jwt.sign(uidObject, process.env.SECRET_KEY, { expiresIn: "24h" })
 }
 
+//Iniciar sesion
 sessionRouter.post("/signIn", async (req, res) => {
     try {
 
@@ -75,6 +76,7 @@ sessionRouter.post("/signIn", async (req, res) => {
     }
 })
 
+//Cerrar sesion
 sessionRouter.post("/logout", (req, res) => {
     try {
         const token = req.signedCookies.authToken

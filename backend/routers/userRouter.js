@@ -86,25 +86,28 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        const body = {
-            id: reserve.id,
-            role: reserve.role,
-            names: reserve.names,
-            surnames: reserve.surnames,
-            phone: reserve.phone,
-            email: reserve.email,
-            Booking: reserve.Booking
-        }
+        const json = reserve.toJSON()
+        delete json.password
 
-        //Devuelvo el usuario si no tiene reserva
-        if (!reserve) {
-            return res.status(404).json({
-                body
+        const now = new Date().toLocaleDateString()
+        const hours = new Date().getHours().toString().padStart(2, '0')
+        const minutes = new Date().getMinutes().toString().padStart(2, '0')
+
+        const time24HoursFormat = `${hours}:${minutes}`
+
+        //Valido y elimino la reserva si ya pasó
+        if(json.Booking !== null && json.Booking.date <= now && json.Booking.time <= time24HoursFormat) {
+
+            await bookingManager.deleteBooking(json.id)
+            json.Booking = null
+
+            return res.status(200).json({
+                body: json
             })
         }
 
         return res.status(200).json({
-            body
+            body: json
         })
 
     } catch (e) {
@@ -463,8 +466,101 @@ userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
             message: "¡Turno cancelado exitosamente!"
         })
     } catch (e) {
-        return res.secure(500).json({
+        return res.status(500).json({
             message: "Error al cancelar el turno"
+        })
+    }
+})
+
+//Modificar turno:
+userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
+    try{
+        const uid = req.params.uid
+
+        const user = await userManager.userGetBookingById(uid)
+        if(!user) {
+            return res.status(404).json({
+                message: "El usuario no existe"
+            })
+        }
+
+        const { date, time } = req.body
+        if (date === "" || time === "") {
+            return res.status(401).json({
+                message: "Llena todos los campos"
+            })
+        }
+
+        const [year, month, day] = date.split('-');
+        const newFormatDate = `${day}/${month}/${year}`
+
+        await bookingManager.updateBooking(user.Booking.id, {
+            date: newFormatDate,
+            time
+        })
+
+
+        const htmlUser = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
+
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reagendado exitosamente!</h1>
+            <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Haz reagendado con exito tu turno para el ${newFormatDate} a las ${time} horas, si no fuiste tú ponte en contacto con soporte, en caso contrario hacer caso omiso.
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                ¡Gracias por elegirnos!
+            </p>
+            <hr style="border: 0; border-top: 1px solid #444; margin-bottom: 20px;"/>
+            <footer>
+                <h4 style="font-size: 16px; margin-top: 0; color:#0d590d;">Atentamente: team Maxi</h4>
+            </footer>
+        </div>
+
+        </body>
+        </html>`
+
+        const htmlAdmin = `<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Maxi Barber Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #222; color: #fff; font-family: Arial, sans-serif;">
+
+        <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
+            <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reagendado!</h1>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Se acaba de reagendar un turno para el ${newFormatDate} a las ${time} horas para el usuario ${user.names} ${user.surnames}
+            </p>
+            <p style="font-size: 16px; margin-bottom: 20px;">
+                Para más detalles, ingresa a la plataforma.
+            </p>
+        </div>
+
+        </body>
+        </html>`
+        
+        //Envio correo al usuario:
+        sendMail(htmlUser, user.email)
+
+        //Envio correo al administrador:
+        sendMail(htmlAdmin, `${process.env.ADMIN_EMAIL}`)
+    
+        return res.status(200).json({
+            message: "Turno reagendado exitosamente"
+        })
+    }catch(e){
+        return res.status(500).json({
+            message: "Error al reagendar el turno, intentalo de nuevo"
         })
     }
 })

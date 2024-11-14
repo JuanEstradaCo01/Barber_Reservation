@@ -23,6 +23,26 @@ class BookingManager {
         })
     }
 
+    async updateBooking(bid, body) {
+        const booking = await this.getBookingById(bid)
+
+        if (!booking) {
+            throw new Error("La reserva no existe")
+        }
+
+        const update = {
+            date: body.date || booking.names,
+            time: body.time || booking.surnames 
+        }
+
+        return this.model.update(update, {
+            where: {
+                id: bid
+            }
+        },
+        );
+    }
+
     async deleteBooking(id) {
         return this.model.destroy({
             where: {

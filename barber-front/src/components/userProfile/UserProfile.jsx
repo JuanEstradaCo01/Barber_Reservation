@@ -27,7 +27,7 @@ function UserProfile() {
         })
             .then(res => res.json()
                 .then(data => {
-                    if (res.status === 200 || res.status === 404) {
+                    if (res.status === 200) {
                         setUser(data.body)
                     } else if (res.status === 401 || res.status === 500) {
                         navigate("/")
@@ -118,7 +118,7 @@ function UserProfile() {
 
             {user.Booking === null ? <h3>¡No tienes turno reservado!</h3> : <div><h4>Turno reservado para el {user.Booking.date} a las {user.Booking.time} horas.</h4>
                 <div className="contenedorUsuarioReserva">
-                    <Link to={"/reagendarturno"}><Button variant="success">Reagendar turno</Button>{' '}</Link>
+                    <Link to={`/reagendarturno/${user.id}`}><Button variant="success">Reagendar turno</Button>{' '}</Link>
                     <Button onClick={cancelarTurno} variant="danger">Cancelar turno</Button>{' '}</div></div>}
         </body>
     )

@@ -80,7 +80,7 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
         const uid = req.params.uid
 
         const reserve = await userManager.userGetBookingById(uid)
-        if(!reserve) {
+        if (!reserve) {
             return res.status(401).json({
                 message: "El usuario no existe"
             })
@@ -125,7 +125,7 @@ userRouter.post("/registro", async (req, res) => {
         }
 
         const findUserIfExist = await userManager.getUserByEmail(email)
-        if(findUserIfExist) {
+        if (findUserIfExist) {
             return res.status(401).json({
                 message: "Ya existe un usuario registrado con este correo"
             })
@@ -315,19 +315,22 @@ userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
         const bookings = await userManager.adminGetBookings()
 
         const now = new Date().toLocaleDateString()
+        const hours = new Date().getHours().toString().padStart(2, '0')
+        const minutes = new Date().getMinutes().toString().padStart(2, '0')
+
+        const time24HoursFormat = `${hours}:${minutes}`
 
         const bookingsSuccess = []
 
-        //Recorro cada reserva, verifico si es del dia anterior y se elimina en ese caso:
+        //Recorro cada reserva y elimino si ya caduco la reserva
         bookings.forEach(item => {
             const json = item.toJSON()
-            if(json.Booking !== null && json.Booking.date < now) {
+            if (json.Booking !== null && json.Booking.date <= now && json.Booking.time <= time24HoursFormat) {
                 cleanOldBookings(json.Booking.uid)
-            }else if(json.Booking !== null) {
+            } else if (json.Booking !== null) {
                 bookingsSuccess.push(json)
             }
         })
-
         async function cleanOldBookings(id) {
             await bookingManager.deleteBooking(id)
         }
@@ -444,11 +447,11 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
 
 //Cancelar turno:
 userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
-    try{
+    try {
         const uid = req.params.uid
 
         const user = await userManager.getUserById(uid)
-        if(!user) {
+        if (!user) {
             return res.status(404).json({
                 message: "Usuario no encontrado"
             })
@@ -459,7 +462,7 @@ userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
         return res.status(200).json({
             message: "¡Turno cancelado exitosamente!"
         })
-    }catch(e){
+    } catch (e) {
         return res.secure(500).json({
             message: "Error al cancelar el turno"
         })

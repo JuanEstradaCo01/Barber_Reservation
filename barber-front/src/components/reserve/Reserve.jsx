@@ -1,5 +1,5 @@
 import "./reserve.css"
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { userContext } from "../context/Context"
 import MiniLoader from "../miniLoader/MiniLoader"
 import Swal from "sweetalert2"
@@ -8,6 +8,26 @@ import { useNavigate } from "react-router-dom";
 
 function Reserve() {
 
+    function consultBookings() {
+        fetch(`${process.env.REACT_APP_URL_BACK}/reservas`)
+            .then(res => res.json()
+                .then(data => {
+                    if (res.status === 200) {
+                        setBookings(data.body)
+                    } else if (res.status === 500) {
+                        MySwal.fire({
+                            show: true,
+                            title: `<strong>${data.message}</strong>`,
+                            icon: "error",
+                            showConfirmButton: true
+                        })
+                    }
+                }))
+            .catch((e) => {
+                console.log(e)
+            })
+    }
+
     const { userId } = useContext(userContext);
 
     const [loaderMini, setLoaderMini] = useState(false)
@@ -15,6 +35,10 @@ function Reserve() {
     //Inputs
     const [date, setDate] = useState("")
     const [time, setTime] = useState("")
+
+    const [year, month, day] = date.split('-');
+    const newFormatDate = `${day}/${month}/${year}`
+    const [bookings, setBookings] = useState([])
 
     const navigate = useNavigate()
 
@@ -34,7 +58,7 @@ function Reserve() {
         document.getElementById("formReservar").reset()
 
         const body = {
-            date,
+            date: newFormatDate,
             time
         }
 
@@ -67,6 +91,10 @@ function Reserve() {
                 console.log(e)
             })
     }
+
+    useEffect(() => {
+        consultBookings()
+    }, [])
 
     return (
         <body id="bodyReservar">

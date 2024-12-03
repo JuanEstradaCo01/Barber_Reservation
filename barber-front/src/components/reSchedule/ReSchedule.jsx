@@ -14,6 +14,9 @@ function ReSchedule() {
 
     const [loaderMini, setLoaderMini] = useState(false)
 
+    const [year, month, day] = date.split('-');
+    const newFormatDate = `${day}/${month}/${year}`
+
     const navigate = useNavigate()
 
     const MySwal = withReactComponent(Swal)
@@ -32,7 +35,7 @@ function ReSchedule() {
         document.getElementById("formReservar").reset()
 
         const body = {
-            date,
+            date: newFormatDate,
             time
         }
 

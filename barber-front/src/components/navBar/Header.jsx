@@ -14,23 +14,32 @@ function Header() {
     const { userId } = useContext(userContext)
 
     return (
-        <Navbar expand="lg" className="bg-body-tertiary">
-            <Container>
-                <Link to={"/"}><img className="imgLogo" src={Logo} alt="Logo" /></Link>
-                <Navbar.Brand><span className="spanNavBar">Maxi Barber Shop</span></Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse id="basic-navbar-nav">
-                    {userId === "" ? <div className="containerBtnsNav">
-                        <Link to={"/"}><Button variant="outline-dark">Iniciar sesion</Button></Link>
-                        <Link to={"/registro"}><Button variant="primary">Regístrate</Button>{' '}</Link>
-                    </div> :
-                    <div className="containerBtnsNav">
-                        <Link to={`/usuario/${userId}`}><FaUserCircle /></Link>
-                    </div>}
-
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+        <>
+            {userId === "" ? <Navbar expand="lg" className="bg-body-tertiary">
+                <Container>
+                    <Link to={"/"}><img className="imgLogo" src={Logo} alt="Logo" /></Link>
+                    <Navbar.Brand><span className="spanNavBar">Maxi Barber Shop</span></Navbar.Brand>
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <div className="containerBtnsNav">
+                            <Link to={"/"}><Button variant="outline-dark">Iniciar sesion</Button></Link>
+                            <Link to={"/registro"}><Button variant="primary">Regístrate</Button>{' '}</Link>
+                        </div>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar> : <Navbar expand="lg" className="bg-body-tertiary">
+                <Container>
+                    <Link to={`/usuario/${userId}`}><img className="imgLogo" src={Logo} alt="Logo" /></Link>
+                    <Navbar.Brand><span className="spanNavBar">Maxi Barber Shop</span></Navbar.Brand>
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <div className="containerBtnsNav">
+                            <Link to={`/usuario/${userId}`}><FaUserCircle /></Link>
+                        </div>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>}
+        </>
     );
 }
 

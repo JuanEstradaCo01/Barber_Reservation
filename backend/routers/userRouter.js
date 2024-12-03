@@ -86,20 +86,18 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        const json = reserve.toJSON()
+        let json = reserve.toJSON()
         delete json.password
 
         const now = new Date().toLocaleDateString()
-        const hours = new Date().getHours().toString().padStart(2, '0')
-        const minutes = new Date().getMinutes().toString().padStart(2, '0')
+        const [day, month, year] = now.split('/');
+        const formatDate = `0${day}/${month}/${year}`
 
-        const time24HoursFormat = `${hours}:${minutes}`
-
-        //Valido y elimino la reserva si ya pasó
-        if(json.Booking !== null && json.Booking.date <= now && json.Booking.time <= time24HoursFormat) {
-
-            await bookingManager.deleteBooking(json.id)
-            json.Booking = null
+        if(json.Booking !== null) {
+            if (json.Booking.date < formatDate) {
+                await bookingManager.deleteBooking(json.Booking.uid)
+                json.Booking = null
+            }
 
             return res.status(200).json({
                 body: json
@@ -312,29 +310,33 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
     }
 })
 
-//Consultar reservas (Admin):
+//Consultar reservas (ADMIN):
 userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
     try {
         const bookings = await userManager.adminGetBookings()
 
         const now = new Date().toLocaleDateString()
-        const hours = new Date().getHours().toString().padStart(2, '0')
-        const minutes = new Date().getMinutes().toString().padStart(2, '0')
 
-        const time24HoursFormat = `${hours}:${minutes}`
+        const [day, month, year] = now.split('/');
+        const formatDate = `0${day}/${month}/${year}`
 
         const bookingsSuccess = []
 
-        //Recorro cada reserva y elimino si ya caduco la reserva
+        //Recorro cada reserva
         bookings.forEach(item => {
             const json = item.toJSON()
-            if (json.Booking !== null && json.Booking.date <= now && json.Booking.time <= time24HoursFormat) {
-                cleanOldBookings(json.Booking.uid)
-            } else if (json.Booking !== null) {
-                bookingsSuccess.push(json)
+
+            //Valido si cada usuario tiene reserva, elimino si la reserva es del dia anerior y muestro las reservas activas
+            if (json.Booking !== null) {
+                if (json.Booking.date < formatDate) {
+                    clearOldBookings(json.id)
+                } else {
+                    bookingsSuccess.push(json)
+                }
             }
         })
-        async function cleanOldBookings(id) {
+
+        async function clearOldBookings(id) {
             await bookingManager.deleteBooking(id)
         }
 
@@ -342,11 +344,27 @@ userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
             body: bookingsSuccess
         })
     } catch (e) {
+        console.log(e)
         return res.status(500).json({
             message: "Error al consultar las reservas"
         })
     }
 });
+
+//Consultar reservas (USER): 
+userRouter.get("/reservas", async (req, res) => {
+    try {
+        const bookings = await bookingManager.getBookings()
+
+        return res.status(200).json({
+            body: bookings
+        })
+    } catch (e) {
+        return res.status(500).json({
+            message: "Error al consultar las reservas"
+        })
+    }
+})
 
 //Crear reserva:
 userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
@@ -368,10 +386,6 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        //Formateo la fecha para manejarla de una manera mas practica en la logica
-        const [year, month, day] = date.split('-');
-        const newFormatDate = `${day}/${month}/${year}`
-
         const htmlUser = `<!DOCTYPE html>
         <html>
         <head>
@@ -385,7 +399,7 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
             <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reservado exitosamente!</h1>
             <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Haz reservado con exito tu turno en Maxi Barber Shop para el ${newFormatDate} a las ${time} horas, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
+                Haz reservado con exito tu turno en Maxi Barber Shop para el ${date} a las ${time} horas, para cancelar o reagendar tu turno inicia sesion en nuestra plataforma y en tu perfil podras gestionarlo.
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 ¡Gracias por elegirnos!
@@ -414,7 +428,7 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
                 (Notificacion nuevo turno reservado)
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Reserva realizada con exito para el ${newFormatDate} a las ${time} horas para ${user.names} ${user.surnames}
+                Reserva realizada con exito para el ${date} a las ${time} horas para ${user.names} ${user.surnames}
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 Para más detalles, ingresa a la plataforma.
@@ -431,9 +445,9 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
         sendMail(htmlAdmin, `${process.env.ADMIN_EMAIL}`)
 
         const newBooking = {
-            date: newFormatDate,
-            time: time,
-            uid: uid
+            date,
+            time,
+            uid
         }
 
         await bookingManager.createBooking(newBooking)
@@ -474,11 +488,11 @@ userRouter.delete("/cancelarturno/:uid", jwtVerify, async (req, res) => {
 
 //Modificar turno:
 userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
-    try{
+    try {
         const uid = req.params.uid
 
         const user = await userManager.userGetBookingById(uid)
-        if(!user) {
+        if (!user) {
             return res.status(404).json({
                 message: "El usuario no existe"
             })
@@ -493,12 +507,6 @@ userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
 
         const [year, month, day] = date.split('-');
         const newFormatDate = `${day}/${month}/${year}`
-
-        await bookingManager.updateBooking(user.Booking.id, {
-            date: newFormatDate,
-            time
-        })
-
 
         const htmlUser = `<!DOCTYPE html>
         <html>
@@ -548,17 +556,22 @@ userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
 
         </body>
         </html>`
-        
+
         //Envio correo al usuario:
         sendMail(htmlUser, user.email)
 
         //Envio correo al administrador:
         sendMail(htmlAdmin, `${process.env.ADMIN_EMAIL}`)
-    
+
+        await bookingManager.updateBooking(user.Booking.id, {
+            date,
+            time
+        })
+
         return res.status(200).json({
             message: "Turno reagendado exitosamente"
         })
-    }catch(e){
+    } catch (e) {
         return res.status(500).json({
             message: "Error al reagendar el turno, intentalo de nuevo"
         })

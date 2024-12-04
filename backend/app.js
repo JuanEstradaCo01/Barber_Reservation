@@ -2,7 +2,6 @@ import express from "express";
 import userRouter from "./routers/userRouter.js";
 import sessionRouter from "./routers/sessionRouter.js";
 import cors from "cors";
-import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -15,7 +14,6 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true 
 }));
-app.use(cookieParser(`${process.env.SECRET_KEY}`));
 
 const PORT = process.env.PORT || 8080
 

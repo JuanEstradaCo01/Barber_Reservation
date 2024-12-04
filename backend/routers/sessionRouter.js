@@ -60,10 +60,9 @@ sessionRouter.post("/signIn", async (req, res) => {
         console.log("✅ Iniciaste sesion")
 
         return res.status(200).cookie("authToken", `${accessToken}`, {
-            sameSite: 'None',
-            signed: true,
+            sameSite: 'none',
             maxAge: 3600000, //1 hora
-            domain: `${process.env.BACKEND_DOMAIN}`, //Dominio
+            domain: `${process.env.FRONTEND_DOMAIN}`, //Dominio
             path: '/',
             httpOnly: true,
             secure: true //Cuando la peticion sea en https se cambia a true
@@ -79,7 +78,7 @@ sessionRouter.post("/signIn", async (req, res) => {
 //Cerrar sesion
 sessionRouter.post("/logout", (req, res) => {
     try {
-        const token = req.signedCookies.authToken
+        const token = req.cookies.authToken
 
         if (token === undefined) {
             return res.status(404).json({

@@ -60,7 +60,7 @@ sessionRouter.post("/signIn", async (req, res) => {
         console.log("✅ Iniciaste sesion")
 
         return res.status(200).cookie("authToken", `${accessToken}`, {
-            sameSite: 'Strict',
+            sameSite: 'Lax',
             signed: true,
             maxAge: 3600000, //1 hora
             domain: 'barber-reservation-nine.vercel.app', //Dominio

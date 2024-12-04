@@ -63,10 +63,10 @@ sessionRouter.post("/signIn", async (req, res) => {
             sameSite: 'Strict',
             signed: true,
             maxAge: 3600000, //1 hora
-            domain: 'localhost', //Solo el dominio
+            domain: 'localhost', //Dominio
             path: '/',
-            httpOnly: false,
-            secure: false //Cuando la peticion sea en https se cambia a true
+            httpOnly: true,
+            secure: true //Cuando la peticion sea en https se cambia a true
         }).json(body)
 
     } catch (e) {

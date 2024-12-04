@@ -93,7 +93,7 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
         const [day, month, year] = now.split('/');
         const formatDate = `0${day}/${month}/${year}`
 
-        if(json.Booking !== null) {
+        if (json.Booking !== null) {
             if (json.Booking.date < formatDate) {
                 await bookingManager.deleteBooking(json.Booking.uid)
                 json.Booking = null
@@ -438,6 +438,43 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
         </body>
         </html>`
 
+        const reservations = []
+
+        const bookings = await bookingManager.getBookings()
+        bookings.forEach(item => {
+            const json = item.toJSON()
+            reservations.push(json)
+        })
+
+        //Valido si hay reservas y busco si ya existe la reserva
+        if (reservations.length > 0) {
+            const findDate = reservations.find(item => item.date === date && item.time === time)
+
+            if (findDate) {
+                return res.status(401).json({
+                    message: "Este turno ya se encuentra reservado, intenta con otro horario"
+                })
+            } else {
+                //Envio correo al usuario:
+                sendMail(htmlUser, user.email)
+
+                //Envio correo al administrador:
+                sendMail(htmlAdmin, `${process.env.ADMIN_EMAIL}`)
+
+                const newBooking = {
+                    date,
+                    time,
+                    uid
+                }
+
+                await bookingManager.createBooking(newBooking)
+
+                return res.status(201).json({
+                    message: `Reserva creada con éxito`
+                })
+            }
+        }
+
         //Envio correo al usuario:
         sendMail(htmlUser, user.email)
 
@@ -455,6 +492,8 @@ userRouter.post("/reservarturno/:uid", jwtVerify, async (req, res) => {
         return res.status(201).json({
             message: `Reserva creada con éxito`
         })
+
+
     } catch (e) {
         return res.status(500).json({
             message: "Error al crear la reserva, intenta de nuevo"

@@ -63,7 +63,7 @@ sessionRouter.post("/signIn", async (req, res) => {
             sameSite: 'None',
             signed: true,
             maxAge: 3600000, //1 hora
-            domain: 'barber-reservation-nine.vercel.app', //Dominio
+            domain: `${process.env.FRONTEND_DOMAIN}`, //Dominio
             path: '/',
             httpOnly: true,
             secure: true //Cuando la peticion sea en https se cambia a true

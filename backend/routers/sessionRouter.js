@@ -60,9 +60,8 @@ sessionRouter.post("/signIn", async (req, res) => {
         console.log("✅ Iniciaste sesion")
 
         return res.status(200).cookie("authToken", `${accessToken}`, {
-            domain: 'barber-reservation.onrender.com', //Dominio
+            domain: 'barber-reservation-nine.vercel.app', //Dominio
             sameSite: 'None',
-            maxAge: 3600000, //1 hora
             path: '/',
             httpOnly: true,
             secure: true //Cuando la peticion sea en https se cambia a true

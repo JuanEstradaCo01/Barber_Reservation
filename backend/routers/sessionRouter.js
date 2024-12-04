@@ -63,9 +63,9 @@ sessionRouter.post("/signIn", async (req, res) => {
             sameSite: 'none',
             signed: true,
             maxAge: 3600000, //1 hora
-            domain: `${process.env.FRONTEND_DOMAIN}`, //Dominio
+            domain: `${process.env.BACKEND_DOMAIN}`, //Dominio
             path: '/',
-            httpOnly: true,
+            httpOnly: false,
             secure: true //Cuando la peticion sea en https se cambia a true
         }).json(body)
 

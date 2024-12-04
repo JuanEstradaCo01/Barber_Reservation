@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: `${process.env.URL_FRONTEND}`, //Frontend
+    origin: 'https://barber-reservation-nine.vercel.app', //Frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true 
 }));

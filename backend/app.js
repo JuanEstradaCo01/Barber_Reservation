@@ -7,13 +7,13 @@ dotenv.config();
 
 const app = express();
 
-app.use(express.json())
-app.use(express.urlencoded({extended: true}))
 app.use(cors({
     origin: `${process.env.URL_FRONTEND}`, //Frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true 
 }));
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 
 const PORT = process.env.PORT || 8080
 

@@ -60,12 +60,12 @@ sessionRouter.post("/signIn", async (req, res) => {
         console.log("✅ Iniciaste sesion")
 
         return res.status(200).cookie("authToken", `${accessToken}`, {
-            sameSite: 'none',
+            sameSite: 'None',
             signed: true,
             maxAge: 3600000, //1 hora
             domain: `${process.env.BACKEND_DOMAIN}`, //Dominio
             path: '/',
-            httpOnly: false,
+            httpOnly: true,
             secure: true //Cuando la peticion sea en https se cambia a true
         }).json(body)
 

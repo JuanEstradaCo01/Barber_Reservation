@@ -10,10 +10,14 @@ const app = express();
 app.use(cors({
     origin: 'https://barber-reservation-nine.vercel.app', //Frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true 
+    credentials: true
 }));
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
+//Rutas
+app.use("/", userRouter)
+app.use("/", sessionRouter)
 
 const PORT = process.env.PORT || 8080
 
@@ -26,6 +30,3 @@ app.get("/healtcheck", (req, res) => {
         date: new Date().toLocaleString()
     })
 })
-
-app.use("/", userRouter)
-app.use("/", sessionRouter)

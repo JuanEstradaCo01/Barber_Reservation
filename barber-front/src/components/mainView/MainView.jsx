@@ -28,7 +28,7 @@ function MainView() {
 
         setLoaderMini(true)
 
-        await fetch(`${process.env.REACT_APP_URL_BACK}/signIn`, {
+        await fetch(`/signIn`, {
             method: "POST",
             credentials: "include",
             headers: {

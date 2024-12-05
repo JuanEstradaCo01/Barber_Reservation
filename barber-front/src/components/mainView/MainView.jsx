@@ -30,7 +30,7 @@ function MainView() {
 
         await fetch(`${process.env.REACT_APP_URL_BACK}/signIn`, {
             method: "POST",
-            credentials: 'include',
+            credentials: "omit",
             headers: {
                 "Content-Type": "application/json",
             },

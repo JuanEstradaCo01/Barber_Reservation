@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 function Reserve() {
 
     function consultBookings() {
-        fetch(`/reservas`)
+        fetch(`${process.env.REACT_APP_URL_BACK}/reservas`)
             .then(res => res.json()
                 .then(data => {
                     if (res.status === 200) {

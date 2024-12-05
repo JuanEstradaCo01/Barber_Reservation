@@ -33,7 +33,7 @@ function RecoveryPassword() {
 
         setMiniLoader(true)
 
-        await fetch(`/restablecer/${uid}`, {
+        await fetch(`${process.env.REACT_APP_URL_BACK}/restablecer/${uid}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

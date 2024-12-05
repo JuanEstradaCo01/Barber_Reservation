@@ -41,7 +41,7 @@ function ReSchedule() {
 
         setLoaderMini(true)
 
-        await fetch(`/reagendarturno/${uid}`, {
+        await fetch(`${process.env.REACT_APP_URL_BACK}/reagendarturno/${uid}`, {
             method: "PUT",
             credentials: "include",
             headers: {

@@ -41,7 +41,7 @@ function RegisterView() {
 
         setLoaderMini(true)
 
-        await fetch(`/registro`, {
+        await fetch(`${process.env.REACT_APP_URL_BACK}/registro`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

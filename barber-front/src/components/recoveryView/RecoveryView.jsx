@@ -30,7 +30,7 @@ function RecoveryView() {
 
         setMiniLoader(true)
 
-        await fetch(`/restablecimientodecontrasena`, {
+        await fetch(`${process.env.REACT_APP_URL_BACK}/restablecimientodecontrasena`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -22,7 +22,7 @@ function UserProfile() {
     const navigate = useNavigate()
 
     function consultarUsuario() {
-        fetch(`/usuario/${uid}`, {
+        fetch(`${process.env.REACT_APP_URL_BACK}/usuario/${uid}`, {
             method: 'GET',
             credentials: 'include'
         })
@@ -59,7 +59,7 @@ function UserProfile() {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/cancelarturno/${uid}`, {
+                fetch(`${process.env.REACT_APP_URL_BACK}/cancelarturno/${uid}`, {
                     method: "DELETE",
                     credentials: "include"
                 })

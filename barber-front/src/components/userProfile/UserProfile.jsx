@@ -23,6 +23,7 @@ function UserProfile() {
 
     function consultarUsuario() {
         fetch(`${process.env.REACT_APP_URL_BACK}/usuario/${uid}`, {
+            method: 'GET',
             credentials: 'include'
         })
             .then(res => res.json()

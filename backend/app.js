@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-    origin: `${process.env.FRONTEND_DOMAIN}`, //Frontend
+    origin: `${process.env.URL_FRONTEND}`, //Frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));

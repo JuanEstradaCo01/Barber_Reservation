@@ -64,7 +64,7 @@ sessionRouter.post("/signIn", async (req, res) => {
             path: '/',
             httpOnly: true,
             secure: true, //Cuando la peticion sea en https se cambia a true
-            sameSite: 'None'
+            sameSite: "none"
         }).json(body)
 
     } catch (e) {

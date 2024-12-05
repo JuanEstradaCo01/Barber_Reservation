@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 function Reserve() {
 
     function consultBookings() {
-        fetch(`${process.env.REACT_APP_URL_BACK}/reservas`)
+        fetch(`/reservas`)
             .then(res => res.json()
                 .then(data => {
                     if (res.status === 200) {
@@ -64,7 +64,7 @@ function Reserve() {
 
         setLoaderMini(true)
 
-        await fetch(`${process.env.REACT_APP_URL_BACK}/reservarturno/${userId}`, {
+        await fetch(`/reservarturno/${userId}`, {
             method: "POST",
             credentials: "include",
             headers: {

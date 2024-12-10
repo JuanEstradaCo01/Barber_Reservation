@@ -12,27 +12,33 @@ const userRouter = Router();
 
 const jwtVerify = async (req, res, next) => {
 
-    const JWT = req.headers.cookie
-    const [authToken, value] = JWT.split('=');
-    const token = value
-    
-    if (token === undefined) {
-        return res.status(401).json({
-            message: "Autenticación fallida"
-        })
-    }
+    try {
+        const JWT = req.headers.cookie
+        const [authToken, value] = JWT.split('=');
+        const token = value
 
-    jwt.verify(token, `${process.env.SECRET_KEY}`, function (err, success) {
-
-        if (err) {
+        if (token === undefined) {
             return res.status(401).json({
-                message: "Token expirado o invalido"
+                message: "Autenticación fallida"
             })
         }
 
-        return next();
+        jwt.verify(token, `${process.env.SECRET_KEY}`, function (err, success) {
 
-    });
+            if (err) {
+                return res.status(401).json({
+                    message: "Token expirado o invalido"
+                })
+            }
+
+            return next();
+
+        });
+    } catch (e) {
+        return res.status(500).json({
+            message: "Error de autenticación"
+        })
+    }
 }
 
 const authAdmin = async (req, res, next) => {

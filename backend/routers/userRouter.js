@@ -13,6 +13,8 @@ const userRouter = Router();
 const jwtVerify = async (req, res, next) => {
 
     try {
+        console.log(req.cookie)
+        console.log(req.cookies)
         const JWT = req.headers.cookie
         const [authToken, value] = JWT.split('=');
         const token = value
@@ -319,7 +321,7 @@ userRouter.put("/restablecer/:uid", async (req, res) => {
 })
 
 //Consultar reservas (ADMIN):
-userRouter.get("/reservas/:adminId", authAdmin, async (req, res) => {
+userRouter.get("/reservas/:adminId", jwtVerify, authAdmin, async (req, res) => {
     try {
         const bookings = await userManager.adminGetBookings()
 

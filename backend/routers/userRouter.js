@@ -13,6 +13,7 @@ const userRouter = Router();
 const jwtVerify = async (req, res, next) => {
 
     const token = req.cookies.authToken
+    console.log(req.cookies)
 
     if (token === undefined) {
         return res.status(401).json({
@@ -104,7 +105,7 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        return res.status(200).json({
+        return res.status(200).header('Access-Control-Allow-Origin', `${process.env.URL_FRONTEND}`).json({
             body: json
         })
 

@@ -65,7 +65,7 @@ sessionRouter.post("/signIn", async (req, res) => {
             httpOnly: true,
             secure: true, //Cuando la peticion sea en https se cambia a true
             sameSite: "none"
-        }).json(body)
+        }).header('Access-Control-Allow-Origin', `${process.env.URL_FRONTEND}`).json(body)
 
     } catch (e) {
         return res.status(500).json({

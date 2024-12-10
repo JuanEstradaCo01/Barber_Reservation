@@ -60,7 +60,6 @@ sessionRouter.post("/signIn", async (req, res) => {
         console.log("✅ Iniciaste sesion")
 
         return res.status(200).cookie("authToken", `${accessToken}`, {
-            domain: `${process.env.FRONTEND_DOMAIN}`, //Dominio
             maxAge: 86400000, //1 Día
             path: '/',
             httpOnly: true,

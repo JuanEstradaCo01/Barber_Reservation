@@ -15,9 +15,7 @@ const jwtVerify = async (req, res, next) => {
     const JWT = req.headers.cookie
     const [authToken, value] = JWT.split('=');
     const token = value
-    console.log({authToken, value})
-    console.log(token)
-
+    
     if (token === undefined) {
         return res.status(401).json({
             message: "Autenticación fallida"
@@ -108,7 +106,7 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        return res.status(200).header('Access-Control-Allow-Origin', `${process.env.URL_FRONTEND}`).json({
+        return res.status(200).json({
             body: json
         })
 

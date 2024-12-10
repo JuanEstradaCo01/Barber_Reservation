@@ -65,7 +65,7 @@ sessionRouter.post("/signIn", async (req, res) => {
             httpOnly: true,
             secure: true, //Cuando la peticion sea en https se cambia a true
             sameSite: "none"
-        }).header('Access-Control-Allow-Origin', `${process.env.URL_FRONTEND}`).json(body)
+        }).json(body)
 
     } catch (e) {
         return res.status(500).json({
@@ -77,7 +77,9 @@ sessionRouter.post("/signIn", async (req, res) => {
 //Cerrar sesion
 sessionRouter.post("/logout", (req, res) => {
     try {
-        const token = req.cookies.authToken
+        const JWT = req.headers.cookie
+        const [authToken, value] = JWT.split('=');
+        const token = value
 
         if (token === undefined) {
             return res.status(404).json({

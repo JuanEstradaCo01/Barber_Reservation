@@ -12,8 +12,11 @@ const userRouter = Router();
 
 const jwtVerify = async (req, res, next) => {
 
-    console.log(req.headers)
-    const token = req.cookies.authToken
+    const JWT = req.headers.cookie
+    const [authToken, value] = JWT.split('=');
+    const token = value
+    console.log({authToken, value})
+    console.log(token)
 
     if (token === undefined) {
         return res.status(401).json({

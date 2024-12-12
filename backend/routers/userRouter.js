@@ -330,7 +330,7 @@ userRouter.get("/reservas/:adminId", jwtVerify, authAdmin, async (req, res) => {
         const now = new Date().toLocaleDateString()
 
         const [day, month, year] = now.split('/');
-        const formatDate = `0${day}/${month}/${year}`
+        const formatDate = `${day}/${month}/${year}`
 
         const bookingsSuccess = []
 
@@ -338,15 +338,11 @@ userRouter.get("/reservas/:adminId", jwtVerify, authAdmin, async (req, res) => {
         bookings.forEach(item => {
             const json = item.toJSON()
 
-            console.log({ formatDate })
-            console.log(json.Booking.date)
             //Valido si cada usuario tiene reserva, elimino si la reserva es del dia anerior y muestro las reservas activas
             if (json.Booking !== null) {
                 if (json.Booking.date < formatDate) {
-                    console.log("elimina antiguas")
                     clearOldBookings(json.id)
                 } else {
-                    console.log("No elimina nada")
                     bookingsSuccess.push(json)
                 }
             }

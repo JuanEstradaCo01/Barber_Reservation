@@ -40,23 +40,29 @@ const jwtVerify = async (req, res, next) => {
 }
 
 const authAdmin = async (req, res, next) => {
-    const adminId = req.params.adminId
+    try {
+        const adminId = req.params.adminId
 
-    const user = await userManager.getUserById(adminId)
+        const user = await userManager.getUserById(adminId)
 
-    if (!user) {
-        return res.status(400).json({
-            message: "La autenticación falló"
+        if (!user) {
+            return res.status(400).json({
+                message: "La autenticación falló"
+            })
+        }
+
+        if (user.role !== "Admin") {
+            return res.status(401).json({
+                message: "No estas autorizado"
+            })
+        }
+
+        return next();
+    } catch (e) {
+        return res.status(500).json({
+            message: "Error al autenticar el administrador"
         })
     }
-
-    if (user.role !== "Admin") {
-        return res.status(401).json({
-            message: "No estas autorizado"
-        })
-    }
-
-    return next();
 }
 
 const sendMail = async (html, email) => {
@@ -332,11 +338,15 @@ userRouter.get("/reservas/:adminId", jwtVerify, authAdmin, async (req, res) => {
         bookings.forEach(item => {
             const json = item.toJSON()
 
+            console.log({ formatDate })
+            console.log(json.Booking.date)
             //Valido si cada usuario tiene reserva, elimino si la reserva es del dia anerior y muestro las reservas activas
             if (json.Booking !== null) {
                 if (json.Booking.date < formatDate) {
+                    console.log("elimina antiguas")
                     clearOldBookings(json.id)
                 } else {
+                    console.log("No elimina nada")
                     bookingsSuccess.push(json)
                 }
             }

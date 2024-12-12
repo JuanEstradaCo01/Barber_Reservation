@@ -13,6 +13,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }))
+
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cookieParser(`${process.env.SECRET_KEY}`))

@@ -1,2 +1,1 @@
-Sitio:
-https://barber-reservation-alpha.vercel.app
+Sitio: https://barber-reservation-alpha.vercel.app

@@ -556,9 +556,6 @@ userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
             })
         }
 
-        const [year, month, day] = date.split('-');
-        const newFormatDate = `${day}/${month}/${year}`
-
         const htmlUser = `<!DOCTYPE html>
         <html>
         <head>
@@ -572,7 +569,7 @@ userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
             <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reagendado exitosamente!</h1>
             <h3 style="font-size: 20px; margin-bottom: 20px;">¡Hola, ${user.names}!</h3>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Haz reagendado con exito tu turno para el ${newFormatDate} a las ${time} horas, si no fuiste tú ponte en contacto con soporte, en caso contrario hacer caso omiso.
+                Haz reagendado con exito tu turno para el ${date} a las ${time} horas, si no fuiste tú ponte en contacto con soporte, en caso contrario hacer caso omiso.
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 ¡Gracias por elegirnos!
@@ -598,7 +595,7 @@ userRouter.put("/reagendarturno/:uid", jwtVerify, async (req, res) => {
         <div style="max-width: 600px; margin: auto; padding: 20px; background-color: #222; color: #fff; text-align: center;">
             <h1 style="font-size: 24px; margin-bottom: 20px; color:#19b319;">¡Turno reagendado!</h1>
             <p style="font-size: 16px; margin-bottom: 20px;">
-                Se acaba de reagendar un turno para el ${newFormatDate} a las ${time} horas para el usuario ${user.names} ${user.surnames}
+                Se acaba de reagendar un turno para el ${date} a las ${time} horas para el usuario ${user.names} ${user.surnames}
             </p>
             <p style="font-size: 16px; margin-bottom: 20px;">
                 Para más detalles, ingresa a la plataforma.

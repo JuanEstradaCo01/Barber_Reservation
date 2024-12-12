@@ -103,7 +103,7 @@ userRouter.get("/usuario/:uid", jwtVerify, async (req, res) => {
 
         const now = new Date().toLocaleDateString()
         const [day, month, year] = now.split('/');
-        const formatDate = `0${day}/${month}/${year}`
+        const formatDate = `${day}/${month}/${year}`
 
         if (json.Booking !== null) {
             if (json.Booking.date < formatDate) {

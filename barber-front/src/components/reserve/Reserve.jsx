@@ -64,7 +64,7 @@ function Reserve() {
 
         setLoaderMini(true)
 
-        await fetch(`/reservarturno/${userId}`, {
+        await fetch(`${process.env.REACT_APP_URL_BACK}/reservarturno/${userId}`, {
             method: "POST",
             credentials: "include",
             headers: {
